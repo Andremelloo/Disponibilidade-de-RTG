@@ -1,8 +1,8 @@
 {
   "version": "2.0",
-  "updatedAt": "2026-09-24T22:32:52.135Z",
+  "updatedAt": "2026-09-24T22:43:30.271Z",
   "currentDay": 15,
-  "monthDays": 31,
+  "monthDays": 30,
   "globalTarget": 0.875,
   "selectedEquipForChart": "ALL",
   "nextId": 42,
