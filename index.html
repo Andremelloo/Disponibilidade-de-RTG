@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estratégia de Disponibilidade & Confiabilidade por Equipamento | Simulador Preditivo 10 Dias (41 RTGs)</title>
+    <meta name="description" content="Dashboard Executivo de Engenharia de Manutenção com Simulador Preditivo por Equipamento e Frota Consolidada para 41 RTGs (Konecranes, Kalmar e ZPMC).">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Navigation Bar -->
+        <header class="navbar">
+            <div class="brand">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="brand-title">Estratégia & Confiabilidade por Equipamento</h1>
+                    <p class="brand-subtitle">Simulador Preditivo Sequencial (D+1 a D+10) & Fechamento Mensal (Frota Oficial de 41 RTGs)</p>
+                </div>
+            </div>
+            <div class="navbar-actions">
+                <div class="badge-status" id="system-badge">
+                    <span class="status-dot"></span>
+                    <span id="badge-text">FROTA ATIVA: 41 RTGs</span>
+                </div>
+                <div class="autosave-indicator" id="autosave-status" title="Todas as edições da frota e parâmetros são salvas automaticamente em tempo real neste navegador">
+                    <span class="status-dot-save"></span>
+                    <span id="autosave-text">💾 Salvo automático</span>
+                </div>
+                <button class="btn-refresh" id="btn-add-equip">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    + Novo RTG (ZPMC)
+                </button>
+                <button class="btn-refresh" id="btn-reset" title="Restaurar Valores Padrão">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                        <path d="M3 3v5h5"/>
+                    </svg>
+                    Resetar
+                </button>
+            </div>
+        </header>
+
+        <!-- KPI Summary Cards (Frota Consolidada de 41 RTGs) -->
+        <section class="kpi-panel-top">
+            <div class="kpi-row">
+                <div class="kpi-card" id="card-disp-atual">
+                    <span class="kpi-title">Disponibilidade Atual da Frota</span>
+                    <div class="kpi-value-row">
+                        <span class="kpi-value" id="kpi-fleet-current-disp">--%</span>
+                        <span class="kpi-diff" id="kpi-fleet-diff">--</span>
+                    </div>
+                    <div class="kpi-footer" id="kpi-fleet-hours-elapsed">Base: 41 RTGs × 360h decorridas</div>
+                </div>
+
+                <div class="kpi-card highlight-card" id="card-disp-prevista">
+                    <span class="kpi-title" id="kpi-title-month-end">Previsão Fechamento (Dia 31 - 744h)</span>
+                    <div class="kpi-value-row">
+                        <span class="kpi-value" id="kpi-fleet-projected-disp">--%</span>
+                        <span class="kpi-badge" id="kpi-fleet-badge">--</span>
+                    </div>
+                    <div class="kpi-footer" id="kpi-fleet-proj-footer">Inclui paradas realizadas + programadas</div>
+                </div>
+
+                <div class="kpi-card" id="card-horas-paradas">
+                    <span class="kpi-title">Total Paradas no Mês (41 RTGs)</span>
+                    <div class="kpi-value-row">
+                        <span class="kpi-value" id="kpi-fleet-total-downtime">-- h</span>
+                        <span class="kpi-subtext" id="kpi-fleet-downtime-split">(Real: --h | Prev: --h)</span>
+                    </div>
+                    <div class="kpi-footer" id="kpi-fleet-downtime-rate">Média: -- h/dia por RTG</div>
+                </div>
+
+                <div class="kpi-card" id="card-saldo-folga">
+                    <span class="kpi-title">Saldo de Tolerância da Frota</span>
+                    <div class="kpi-value-row">
+                        <span class="kpi-value" id="kpi-fleet-buffer">-- h</span>
+                        <span class="kpi-status-icon" id="kpi-fleet-icon">🛡️</span>
+                    </div>
+                    <div class="kpi-footer" id="kpi-fleet-buffer-footer">Margem coletiva para atingir a meta</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO DESTACADA: AJUSTE DINÂMICO DA META DE VISUALIZAÇÃO & CONTROLES -->
+        <section class="card meta-box-card">
+            <div class="meta-box-header">
+                <div class="card-title-group">
+                    <span class="card-tag">AJUSTE DE PARÂMETROS & VISUALIZAÇÃO</span>
+                    <h2 class="card-title">Defina a Meta de Disponibilidade Desejada para Simulação</h2>
+                </div>
+                <div class="meta-quick-presets">
+                    <span class="presets-label">Metas Rápidas:</span>
+                    <button type="button" class="btn-preset-meta" data-val="86.0">86.0%</button>
+                    <button type="button" class="btn-preset-meta" data-val="87.0">87.0%</button>
+                    <button type="button" class="btn-preset-meta active" data-val="87.5">87.5% (Padrão)</button>
+                    <button type="button" class="btn-preset-meta" data-val="88.0">88.0%</button>
+                    <button type="button" class="btn-preset-meta" data-val="90.0">90.0%</button>
+                    <button type="button" class="btn-preset-meta" data-val="92.0">92.0%</button>
+                </div>
+            </div>
+
+            <div class="controls-bar-grid">
+                <!-- Controle de Meta Preciso -->
+                <div class="control-item meta-input-item">
+                    <div class="control-label-group">
+                        <label for="input-target-number">🎯 Meta da Operação (%):</label>
+                        <span class="val-display" id="display-target">87.5%</span>
+                    </div>
+                    <div class="meta-input-dual">
+                        <input type="range" id="input-target" min="75" max="99.5" step="0.1" value="87.5" class="slider-control slider-target">
+                        <div class="input-with-pct">
+                            <input type="number" id="input-target-number" min="70" max="99.9" step="0.1" value="87.5" class="text-input-num">
+                            <span class="pct-symbol">%</span>
+                        </div>
+                    </div>
+                    <p class="field-hint">Altere livremente a meta acima. O gráfico, as folgas e os semáforos dos 41 RTGs mudam na hora!</p>
+                </div>
+
+                <!-- Dia Atual do Mês (D0) ajustado até 31 -->
+                <div class="control-item">
+                    <div class="control-label-group">
+                        <label for="input-current-day">📅 Dia Atual do Mês (D0):</label>
+                        <span class="val-display" id="display-current-day">Dia 15 de 31</span>
+                    </div>
+                    <input type="range" id="input-current-day" min="1" max="31" value="15" class="slider-control">
+                    <div class="range-marks">
+                        <span>Dia 1</span>
+                        <span>Dia 15</span>
+                        <span>Dia 25</span>
+                        <span>Dia 31</span>
+                    </div>
+                </div>
+
+                <!-- Duração do Mês e Equipamento em Foco -->
+                <div class="control-item">
+                    <div class="control-label-group">
+                        <label for="select-month-days">⏱️ Duração do Mês:</label>
+                        <span class="val-display" id="display-month-days">31 Dias (744h)</span>
+                    </div>
+                    <select id="select-month-days" class="select-control">
+                        <option value="31" selected>Mês de 31 Dias (Janeiro, Março, Maio, Julho, Agosto, Outubro, Dezembro - 744h)</option>
+                        <option value="30">Mês de 30 Dias (Abril, Junho, Setembro, Novembro - 720h)</option>
+                        <option value="28">Mês de 28 Dias (Fevereiro - 672h)</option>
+                        <option value="29">Mês de 29 Dias (Fevereiro Bissexto - 696h)</option>
+                    </select>
+
+                    <div class="equip-focus-row" style="margin-top: 10px;">
+                        <label for="select-chart-equip" style="font-size:0.78rem; font-weight:600; color:#94a3b8;">Foco no Gráfico:</label>
+                        <select id="select-chart-equip" class="select-control" style="width:100%; margin-top:4px;">
+                            <option value="ALL">Média da Frota Consolidada (41 RTGs)</option>
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dynamic Chart -->
+        <section class="card chart-card">
+            <div class="card-header">
+                <div class="card-title-group">
+                    <span class="card-tag">EVOLUÇÃO PREDITIVA SEQUENCIAL</span>
+                    <h2 class="card-title" id="chart-main-title">Trajetória da Disponibilidade: Realizada vs Previsão D+1 a D+10 vs Fechamento</h2>
+                </div>
+                <div class="chart-legend-custom">
+                    <span class="legend-item"><span class="dot actual"></span>Realizado (Hoje)</span>
+                    <span class="legend-item"><span class="dot proj-opt"></span>Sequencial (D+1 a D+10)</span>
+                    <span class="legend-item"><span class="dot proj-trend"></span>Fechamento Estimado</span>
+                    <span class="legend-item"><span class="dot meta"></span>Meta de Visualização (<span id="legend-target-val">87.5%</span>)</span>
+                </div>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="forecastChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Tabela Mestra dos 41 RTGs -->
+        <section class="card table-card">
+            <div class="card-header">
+                <div class="card-title-group">
+                    <span class="card-tag">MATRIZ OPERACIONAL DOS 41 RTGs</span>
+                    <h2 class="card-title">Preenchimento Direto: "Tempo Parado até o Momento" & "Paradas Previstas até o Fim do Mês"</h2>
+                </div>
+                <div class="table-actions">
+                    <button class="btn-export-csv" id="btn-copy-summary" title="Copiar resumo para relatório diário">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                        </svg>
+                        Copiar Relatório
+                    </button>
+                </div>
+            </div>
+
+            <p class="table-instructions">
+                💡 <strong>Composição da Frota:</strong> RTG 01-06 (<strong>Konecranes</strong>) | RTG 07-10 (<strong>Kalmar</strong>) | RTG 11-20 (<strong>Konecranes</strong>) | RTG 21-30 (<strong>Kalmar</strong>) | RTG 31-41 (<strong>ZPMC</strong>). Novos equipamentos inseridos serão atribuídos como <strong>ZPMC</strong>.
+            </p>
+
+            <div class="table-responsive">
+                <table class="equipment-table" id="equipment-table">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" class="col-sticky">RTG (TAG)</th>
+                            <th rowspan="2">Fabricante / Família</th>
+                            <th colspan="3" class="th-input-group">✏️ ENTRADAS OPERACIONAIS (HORAS)</th>
+                            <th rowspan="2">Falhas (OS)</th>
+                            <th rowspan="2">Disp. Atual (Hoje)</th>
+                            <th rowspan="2">Total Paradas Mês</th>
+                            <th rowspan="2" class="th-proj" id="th-disp-final">Disp. Fim Mês (%)</th>
+                            <th rowspan="2" class="th-meta-col">Meta RTG (%)</th>
+                            <th rowspan="2">Saldo Folga (h)</th>
+                            <th rowspan="2">Status</th>
+                            <th colspan="10" class="th-forecast-group">PREVISÃO SEQUENCIAL DE 10 DIAS (D+1 A D+10)</th>
+                            <th rowspan="2" class="th-actions">Ações</th>
+                        </tr>
+                        <tr id="sub-header-days">
+                            <th class="th-input" title="Duração padrão do mês ou digite horas personalizadas para este RTG">Horas no Mês (h)</th>
+                            <th class="th-input">Tempo Parado até Hoje (h)</th>
+                            <th class="th-input">Paradas Previstas até Fim Mês (h)</th>
+                            <th class="th-d-forecast">D+1</th>
+                            <th class="th-d-forecast">D+2</th>
+                            <th class="th-d-forecast">D+3</th>
+                            <th class="th-d-forecast">D+4</th>
+                            <th class="th-d-forecast">D+5</th>
+                            <th class="th-d-forecast">D+6</th>
+                            <th class="th-d-forecast">D+7</th>
+                            <th class="th-d-forecast">D+8</th>
+                            <th class="th-d-forecast">D+9</th>
+                            <th class="th-d-forecast">D+10</th>
+                        </tr>
+                    </thead>
+                    <tbody id="equipment-tbody">
+                        <!-- Gerado dinamicamente para os 41 RTGs -->
+                    </tbody>
+                    <tfoot id="equipment-tfoot">
+                        <!-- Linha de Média da Frota -->
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+
+        <!-- Ranking de Criticidade e Insights de Confiabilidade -->
+        <section class="insights-dual-grid">
+            <!-- Ranking de Equipamentos Críticos -->
+            <div class="card ranking-card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-tag">RANKING DE RISCO</span>
+                        <h3 class="card-title">RTGs Mais Críticos (Menor Folga de Horas vs Meta)</h3>
+                    </div>
+                </div>
+                <div class="ranking-list" id="ranking-container">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Insights Táticos de Engenharia de Manutenção -->
+            <div class="card recommendations-card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-tag">ENGENHARIA DE CONFIABILIDADE (RAMS)</span>
+                        <h3 class="card-title">Recomendações Táticas para os Próximos 10 Dias</h3>
+                    </div>
+                </div>
+                <div class="recommendations-list" id="recommendations-container">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
