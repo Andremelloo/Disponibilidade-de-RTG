@@ -176,7 +176,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnAddEquip = document.getElementById('btn-add-equip');
     const btnReset = document.getElementById('btn-reset');
     const btnCopySummary = document.getElementById('btn-copy-summary');
+    const btnLock = document.getElementById('btn-lock');
 
+    initAuth();
     initChart();
 
     function applyGlobalTargetToUI(targetVal) {
@@ -943,3 +945,91 @@ function copySummaryToClipboard() {
         setTimeout(() => btn.innerHTML = oldHtml, 2000);
     });
 }
+
+/* ==========================================================================
+   Autenticação & Controle de Acesso Restrito (Senha)
+   ========================================================================== */
+const AUTH_STORAGE_KEY = 'rtg_dashboard_auth_token_v1';
+const DEFAULT_PASSWORD = 'tcp@2025';
+
+// Senhas aceitas (incluindo variações intuitivas de fábrica)
+const ACCEPTED_PASSWORDS = [
+    'tcp@2025',
+    'tcp2025',
+    'rtg2025',
+    'tcpmanutencao',
+    'admin@rtg'
+];
+
+function initAuth() {
+    const overlay = document.getElementById('auth-modal-overlay');
+    const form = document.getElementById('auth-form');
+    const input = document.getElementById('auth-password-input');
+    const toggleBtn = document.getElementById('btn-toggle-pwd');
+    const errorMsg = document.getElementById('auth-error-msg');
+    const rememberMe = document.getElementById('auth-remember-me');
+    const btnLock = document.getElementById('btn-lock');
+
+    if (!overlay || !form || !input) return;
+
+    // Verifica se já está autenticado no localStorage ou sessionStorage
+    const isAuthLocal = localStorage.getItem(AUTH_STORAGE_KEY) === 'authenticated';
+    const isAuthSession = sessionStorage.getItem(AUTH_STORAGE_KEY) === 'authenticated';
+
+    if (isAuthLocal || isAuthSession) {
+        overlay.classList.add('hidden');
+    } else {
+        overlay.classList.remove('hidden');
+        setTimeout(() => input.focus(), 250);
+    }
+
+    // Toggle de visualização da senha
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            toggleBtn.textContent = isPassword ? '🔒' : '👁️';
+        });
+    }
+
+    // Submissão do formulário de autenticação
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const entered = (input.value || '').trim();
+
+        // Checagem de senha
+        const isValid = ACCEPTED_PASSWORDS.some(pwd => pwd.toLowerCase() === entered.toLowerCase());
+
+        if (isValid) {
+            errorMsg.classList.remove('visible');
+            errorMsg.textContent = '';
+            
+            if (rememberMe && rememberMe.checked) {
+                localStorage.setItem(AUTH_STORAGE_KEY, 'authenticated');
+            } else {
+                sessionStorage.setItem(AUTH_STORAGE_KEY, 'authenticated');
+            }
+
+            overlay.classList.add('hidden');
+            input.value = '';
+        } else {
+            errorMsg.textContent = '❌ Senha incorreta. Tente novamente.';
+            errorMsg.classList.add('visible');
+            input.focus();
+            input.select();
+        }
+    });
+
+    // Botão de Bloquear na barra superior
+    if (btnLock) {
+        btnLock.addEventListener('click', () => {
+            localStorage.removeItem(AUTH_STORAGE_KEY);
+            sessionStorage.removeItem(AUTH_STORAGE_KEY);
+            overlay.classList.remove('hidden');
+            if (errorMsg) errorMsg.classList.remove('visible');
+            input.value = '';
+            setTimeout(() => input.focus(), 200);
+        });
+    }
+}
+

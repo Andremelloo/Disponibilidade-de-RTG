@@ -51,8 +51,53 @@
                     </svg>
                     Resetar
                 </button>
+                <button class="btn-refresh" id="btn-lock" title="Bloquear tela com senha">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    Bloquear
+                </button>
             </div>
         </header>
+
+        <!-- Modal de Autenticação / Bloqueio por Senha -->
+        <div id="auth-modal-overlay" class="auth-overlay">
+            <div class="auth-modal-card">
+                <div class="auth-icon-badge">
+                    <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                </div>
+                <h2 class="auth-title">Acesso Restrito</h2>
+                <p class="auth-subtitle">Engenharia de Confiabilidade & Gestão de Ativos (Frota RTG)</p>
+
+                <form id="auth-form" class="auth-form" onsubmit="return false;">
+                    <div class="auth-input-wrapper">
+                        <input type="password" id="auth-password-input" class="auth-input" placeholder="Digite a senha de acesso..." autocomplete="current-password" required autofocus>
+                        <button type="button" id="btn-toggle-pwd" class="btn-pwd-eye" title="Mostrar/Ocultar Senha">
+                            👁️
+                        </button>
+                    </div>
+                    <div class="auth-remember-row">
+                        <label class="remember-label">
+                            <input type="checkbox" id="auth-remember-me" checked>
+                            <span>Manter conectado neste navegador</span>
+                        </label>
+                    </div>
+                    <div id="auth-error-msg" class="auth-error-msg"></div>
+                    <button type="submit" id="btn-submit-auth" class="btn-auth-submit">
+                        <span>Acessar Dashboard</span>
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </button>
+                    <p class="auth-hint">🔒 Senha padrão inicial: <strong>tcp@2025</strong></p>
+                </form>
+            </div>
+        </div>
 
         <!-- KPI Summary Cards (Frota Consolidada de 41 RTGs) -->
         <section class="kpi-panel-top">
