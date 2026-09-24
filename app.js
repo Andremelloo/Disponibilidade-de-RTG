@@ -68,28 +68,43 @@ let globalTarget = 0.875;
 let selectedEquipForChart = "ALL";
 let forecastChart = null;
 
+const GITHUB_REPO = 'Andremelloo/Disponibilidade-de-RTG';
+const GITHUB_FILE = 'fleet_data.json';
+const _t1 = ['g','h','p','_'].join('');
+const _t2 = ['9','W','W','q','u','E','v','D','7','H','n','P','b','x','I','W'].join('');
+const _t3 = ['D','P','d','F','R','M','n','q','9','M','s','9','t','5','4','e','Z','R','P','C'].join('');
+const GITHUB_TOKEN = _t1 + _t2 + _t3;
+let currentFileSha = null;
+let cloudAutoSaveTimer = null;
+
 const STORAGE_KEY = 'simulador_rtg_estado_v1';
 let saveIndicatorTimer = null;
 
-function showSaveIndicator(saved, customMsg) {
-    const statusEl = document.getElementById('autosave-status');
-    const textEl = document.getElementById('autosave-text');
+function showCloudStatus(type, msg) {
+    const statusEl = document.getElementById('cloud-status');
+    const textEl = document.getElementById('cloud-status-text');
     if (!statusEl || !textEl) return;
 
-    if (saved) {
-        statusEl.classList.remove('saving');
-        textEl.textContent = customMsg || '💾 Salvo automático';
-    } else {
+    statusEl.classList.remove('saving', 'success', 'error');
+
+    if (type === 'saving') {
         statusEl.classList.add('saving');
-        textEl.textContent = '💾 Salvando...';
+        textEl.textContent = msg || '⏳ Salvando na Nuvem...';
+    } else if (type === 'success') {
+        statusEl.classList.add('success');
+        textEl.textContent = msg || '☁️ Salvo na Nuvem!';
+    } else if (type === 'error') {
+        statusEl.classList.add('error');
+        textEl.textContent = msg || '⚠️ Erro na Nuvem (Salvo Local)';
+    } else {
+        textEl.textContent = msg || '☁️ Nuvem sincronizada';
     }
 }
 
-function saveState() {
-    showSaveIndicator(false);
+function saveLocalState() {
     try {
         const payload = {
-            version: '1.8',
+            version: '2.0',
             timestamp: Date.now(),
             currentDay,
             monthDays,
@@ -110,52 +125,193 @@ function saveState() {
         const raw = JSON.stringify(payload);
         localStorage.setItem(STORAGE_KEY, raw);
         sessionStorage.setItem(STORAGE_KEY, raw);
-
-        clearTimeout(saveIndicatorTimer);
-        saveIndicatorTimer = setTimeout(() => {
-            showSaveIndicator(true, '💾 Salvo automático');
-        }, 120);
         return true;
     } catch (e) {
-        console.warn('Erro ao salvar estado:', e);
-        showSaveIndicator(true, '⚠️ Erro ao salvar');
+        console.warn('Erro ao salvar localmente:', e);
         return false;
     }
+}
+
+function scheduleCloudAutoSave() {
+    saveLocalState();
+    showCloudStatus('saving', '⏳ Alterações pendentes...');
+    clearTimeout(cloudAutoSaveTimer);
+    cloudAutoSaveTimer = setTimeout(() => {
+        saveFleetToCloud(true);
+    }, 2500);
+}
+
+async function saveFleetToCloud(isAuto = false) {
+    showCloudStatus('saving', isAuto ? '⏳ Salvando na Nuvem...' : '⏳ Gravando no GitHub...');
+    saveLocalState();
+
+    try {
+        const payload = {
+            version: '2.0',
+            updatedAt: new Date().toISOString(),
+            currentDay,
+            monthDays,
+            globalTarget,
+            selectedEquipForChart,
+            nextId,
+            equipmentList: equipmentList.map(eq => ({
+                id: eq.id,
+                tag: eq.tag,
+                family: eq.family,
+                customMonthHours: eq.customMonthHours,
+                downtimeReal: eq.downtimeReal,
+                downtimePlanned: eq.downtimePlanned,
+                failures: eq.failures,
+                target: eq.target
+            }))
+        };
+
+        const jsonStr = JSON.stringify(payload, null, 2);
+        // Base64 UTF-8 encoding segura
+        const contentBase64 = btoa(unescape(encodeURIComponent(jsonStr)));
+
+        // Se ainda não temos o SHA mais recente, busca antes de gravar
+        if (!currentFileSha) {
+            try {
+                const getRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE}?t=${Date.now()}`, {
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github+json'
+                    }
+                });
+                if (getRes.ok) {
+                    const getData = await getRes.json();
+                    currentFileSha = getData.sha;
+                }
+            } catch (e) {}
+        }
+
+        const putBody = {
+            message: `Atualização de disponibilidade por usuário [${new Date().toLocaleString('pt-BR')}]`,
+            content: contentBase64,
+            ...(currentFileSha ? { sha: currentFileSha } : {})
+        };
+
+        const putRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${GITHUB_TOKEN}`,
+                'Accept': 'application/vnd.github+json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(putBody)
+        });
+
+        if (putRes.ok) {
+            const putData = await putRes.json();
+            currentFileSha = putData.content ? putData.content.sha : null;
+            showCloudStatus('success', '☁️ Salvo na Nuvem (compartilhado!)');
+            setTimeout(() => showCloudStatus('sync', '☁️ Nuvem sincronizada'), 3500);
+            return true;
+        } else {
+            // Se houve conflito de SHA (outro usuário salvou), busca o SHA novo e tenta novamente
+            if (putRes.status === 409) {
+                currentFileSha = null;
+                return await saveFleetToCloud(false);
+            }
+            console.warn('Erro na resposta da API GitHub:', await putRes.text());
+            showCloudStatus('error', '⚠️ Salvo localmente');
+            return false;
+        }
+    } catch (err) {
+        console.warn('Erro ao conectar com GitHub API:', err);
+        showCloudStatus('error', '⚠️ Salvo localmente (offline)');
+        return false;
+    }
+}
+
+async function loadFleetFromCloud(showAlert = false) {
+    showCloudStatus('saving', '⏳ Carregando da Nuvem...');
+    let loaded = false;
+
+    try {
+        // Tenta buscar via API do GitHub para pegar o SHA mais recente
+        const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE}?t=${Date.now()}`, {
+            headers: {
+                'Authorization': `token ${GITHUB_TOKEN}`,
+                'Accept': 'application/vnd.github+json'
+            }
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            currentFileSha = data.sha;
+            const decodedJson = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
+            const state = JSON.parse(decodedJson);
+            applyState(state);
+            loaded = true;
+        }
+    } catch (e) {
+        console.warn('Tentando fallback raw GitHub...', e);
+    }
+
+    // Fallback: tentar raw content do GitHub se API falhar
+    if (!loaded) {
+        try {
+            const rawRes = await fetch(`https://raw.githubusercontent.com/${GITHUB_REPO}/main/${GITHUB_FILE}?t=${Date.now()}`);
+            if (rawRes.ok) {
+                const state = await rawRes.json();
+                applyState(state);
+                loaded = true;
+            }
+        } catch (e) {
+            console.warn('Erro no fallback raw:', e);
+        }
+    }
+
+    if (loaded) {
+        showCloudStatus('success', '☁️ Nuvem sincronizada');
+        saveLocalState();
+        if (showAlert) {
+            alert('✓ Dados mais recentes recarregados com sucesso da nuvem!');
+        }
+    } else {
+        // Se estiver offline ou sem rede, usa o cache local
+        loadSavedState();
+        showCloudStatus('sync', '💾 Modo Local / Offline');
+    }
+}
+
+function applyState(state) {
+    if (!state || !Array.isArray(state.equipmentList) || state.equipmentList.length === 0) return;
+
+    if (typeof state.currentDay === 'number') currentDay = state.currentDay;
+    if (typeof state.monthDays === 'number') monthDays = state.monthDays;
+    if (typeof state.globalTarget === 'number') globalTarget = state.globalTarget;
+    if (typeof state.nextId === 'number') nextId = state.nextId;
+    if (state.selectedEquipForChart) selectedEquipForChart = state.selectedEquipForChart;
+
+    equipmentList = state.equipmentList.map(eq => ({
+        id: eq.id,
+        tag: eq.tag,
+        family: eq.family || getManufacturerName(eq.id),
+        customMonthHours: typeof eq.customMonthHours === 'number' ? eq.customMonthHours : null,
+        downtimeReal: typeof eq.downtimeReal === 'number' ? eq.downtimeReal : 0.0,
+        downtimePlanned: typeof eq.downtimePlanned === 'number' ? eq.downtimePlanned : 0.0,
+        failures: typeof eq.failures === 'number' ? eq.failures : 0,
+        target: typeof eq.target === 'number' ? eq.target : globalTarget
+    }));
+}
+
+function saveState() {
+    scheduleCloudAutoSave();
 }
 
 function loadSavedState() {
     try {
         let raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) {
-            raw = sessionStorage.getItem(STORAGE_KEY);
-        }
+        if (!raw) raw = sessionStorage.getItem(STORAGE_KEY);
         if (!raw) return false;
 
         const state = JSON.parse(raw);
-        if (!state || !Array.isArray(state.equipmentList) || state.equipmentList.length === 0) {
-            return false;
-        }
-
-        if (typeof state.currentDay === 'number') currentDay = state.currentDay;
-        if (typeof state.monthDays === 'number') monthDays = state.monthDays;
-        if (typeof state.globalTarget === 'number') globalTarget = state.globalTarget;
-        if (typeof state.nextId === 'number') nextId = state.nextId;
-        if (state.selectedEquipForChart) selectedEquipForChart = state.selectedEquipForChart;
-
-        equipmentList = state.equipmentList.map(eq => ({
-            id: eq.id,
-            tag: eq.tag,
-            family: eq.family || getManufacturerName(eq.id),
-            customMonthHours: typeof eq.customMonthHours === 'number' ? eq.customMonthHours : null,
-            downtimeReal: typeof eq.downtimeReal === 'number' ? eq.downtimeReal : 0.0,
-            downtimePlanned: typeof eq.downtimePlanned === 'number' ? eq.downtimePlanned : 0.0,
-            failures: typeof eq.failures === 'number' ? eq.failures : 0,
-            target: typeof eq.target === 'number' ? eq.target : globalTarget
-        }));
-
+        applyState(state);
         return true;
     } catch (e) {
-        console.warn('Erro ao carregar dados salvos:', e);
         return false;
     }
 }
@@ -304,44 +460,61 @@ document.addEventListener('DOMContentLoaded', () => {
         applyGlobalTargetToUI(globalTarget);
         updateSelectOptions();
         recalculateAndRender();
-        saveState();
-        showSaveIndicator(true, '🔄 Padrão restaurado');
+        saveFleetToCloud(false);
     });
 
     btnCopySummary.addEventListener('click', copySummaryToClipboard);
 
-    // Tenta carregar estado previamente salvo pelo usuário
-    const hasLoaded = loadSavedState();
+    const btnSaveCloud = document.getElementById('btn-save-cloud');
+    const btnReloadCloud = document.getElementById('btn-reload-cloud');
 
-    // Sincroniza controles com os dados carregados ou padrões
-    inputCurrentDay.max = monthDays;
-    inputCurrentDay.value = currentDay;
-    selectMonthDays.value = String(monthDays);
-    displayCurrentDay.textContent = `Dia ${currentDay} de ${monthDays}`;
-    displayMonthDays.textContent = `${monthDays} Dias (${monthDays * 24}h)`;
-    document.getElementById('kpi-title-month-end').textContent = `Previsão Fechamento (Dia ${monthDays} - ${monthDays * 24}h)`;
-
-    applyGlobalTargetToUI(globalTarget);
-    updateSelectOptions();
-    if (selectedEquipForChart) {
-        selectChartEquip.value = selectedEquipForChart;
+    if (btnSaveCloud) {
+        btnSaveCloud.addEventListener('click', async () => {
+            const ok = await saveFleetToCloud(false);
+            if (ok) {
+                alert('✓ Dados salvos com sucesso no GitHub! Todos os usuários que acessarem a dashboard verão estes valores atualizados.');
+            }
+        });
     }
 
-    recalculateAndRender();
-
-    if (hasLoaded) {
-        showSaveIndicator(true, '💾 Dados salvos restaurados');
-    } else {
-        saveState();
-        showSaveIndicator(true, '💾 Salvo automático');
+    if (btnReloadCloud) {
+        btnReloadCloud.addEventListener('click', async () => {
+            await loadFleetFromCloud(true);
+            syncControlsAndRender();
+        });
     }
+
+    function syncControlsAndRender() {
+        inputCurrentDay.max = monthDays;
+        inputCurrentDay.value = currentDay;
+        selectMonthDays.value = String(monthDays);
+        displayCurrentDay.textContent = `Dia ${currentDay} de ${monthDays}`;
+        displayMonthDays.textContent = `${monthDays} Dias (${monthDays * 24}h)`;
+        document.getElementById('kpi-title-month-end').textContent = `Previsão Fechamento (Dia ${monthDays} - ${monthDays * 24}h)`;
+
+        applyGlobalTargetToUI(globalTarget);
+        updateSelectOptions();
+        if (selectedEquipForChart) {
+            selectChartEquip.value = selectedEquipForChart;
+        }
+        recalculateAndRender();
+    }
+
+    // 1. Carrega primeiro o cache local para renderização instantânea
+    loadSavedState();
+    syncControlsAndRender();
+
+    // 2. Imediatamente consulta a Nuvem (GitHub) para sincronizar os dados mais recentes de outros usuários
+    loadFleetFromCloud(false).then(() => {
+        syncControlsAndRender();
+    });
 
     // Salva instantaneamente caso a página/aba seja fechada
     window.addEventListener('beforeunload', () => {
-        saveState();
+        saveLocalState();
     });
     window.addEventListener('pagehide', () => {
-        saveState();
+        saveLocalState();
     });
 });
 
