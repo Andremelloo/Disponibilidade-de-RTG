@@ -1,0 +1,91 @@
+================================================================================
+  PROJETO: DASHBOARD DE ESTRATÉGIA, DISPONIBILIDADE & CONFIABILIDADE DE RTGs
+  TERMINAL DE CONTÊINERES DE PARANAGUÁ (TCP)
+================================================================================
+
+1. VISÃO GERAL DO PROJETO
+--------------------------------------------------------------------------------
+Este projeto é uma aplicação web moderna e interativa desenvolvida para a
+Engenharia de Manutenção e Gestão de Ativos do Terminal de Contêineres de
+Paranaguá (TCP).
+
+O objetivo principal é gerenciar, monitorar e projetar a Disponibilidade Física (DF),
+Confiabilidade (MTBF) e Manutenibilidade (MTTR) da frota de 41 Guindastes RTG
+(Rubber Tyred Gantry), com recursos avançados de Simulação Preditiva de 10 dias
+(D+1 a D+10) e fechamento mensal.
+
+
+2. ESTRUTURA DA FROTA GERENCIADA
+--------------------------------------------------------------------------------
+A base de dados contempla 41 equipamentos segmentados por fabricante:
+- RTG 01 ao RTG 22: Fabricante Konecranes (22 unidades)
+- RTG 23 ao RTG 32: Fabricante Kalmar (10 unidades)
+- RTG 33 ao RTG 41: Fabricante ZPMC (9 unidades)
+* Suporte à adição e remoção dinâmica de novos equipamentos ZPMC pela interface.
+
+
+3. PRINCIPAIS FUNCIONALIDADES IMPLEMENTADAS
+--------------------------------------------------------------------------------
+
+A) SIMULADOR PREDITIVO SEQUENCIAL (D+1 A D+10):
+   - Projeção de Disponibilidade Física acumulada dia a dia até o fechamento.
+   - Ajuste em tempo real de horas de manutenção preventiva, corretiva e operacionais.
+   - Cálculo automático de impacto na frota individual e consolidada.
+   - Alertas visuais semafóricos com base nas metas (Verde >= 93%, Amarelo, Vermelho).
+
+B) GESTÃO DE HORAS E INDICADORES (KPIs):
+   - Horas Calendário, Horas Trabalhadas e Horas de Manutenção (Preventiva, Corretiva,
+     Inspeções e Melhorias).
+   - Cálculo de Disponibilidade Física (DF %) Real vs Projetada.
+   - Cálculo de MTBF (Mean Time Between Failures) e MTTR (Mean Time To Repair).
+   - Resumo consolidado da frota e por grupo de fabricante.
+
+C) GRÁFICOS INTERATIVOS E VISUALIZAÇÃO DE DADOS (CHART.JS):
+   - Curva de projeção de disponibilidade de D+1 a D+10 por equipamento e frota.
+   - Gráficos de distribuição de horas de parada por categoria e fabricante.
+   - Tabela analítica completa com ordenação, busca e filtros rápidos.
+
+D) SISTEMA DE SEGURANÇA E CONTROLE DE ACESSO (PERFIS / SENHAS):
+   - Modal de Autenticação / Bloqueio de Tela.
+   - Perfil "Editor" (acesso completo a edições, simulações, salvar na nuvem e reset).
+   - Perfil "Visualizador" (somente leitura para operadores e liderança).
+   - Opção de mostrar/ocultar senha e botão de Bloquear/Sair.
+
+E) SINCRONIZAÇÃO E PERSISTÊNCIA NA NUVEM:
+   - Integração para salvar e recarregar dados na nuvem (GitHub Raw / API).
+   - Fallback automático e persistência local via LocalStorage do navegador.
+   - Indicador visual de status de sincronização (Nuvem Sincronizada / Offline).
+
+F) EXPORTAÇÃO E FERRAMENTAS EXECUTIVAS:
+   - Exportação completa de dados para formato CSV / JSON.
+   - Modal para adição de novos RTGs ZPMC.
+   - Botão de restauração para valores padrão da frota.
+   - Design moderno com Glassmorphism, Dark Mode, tipografia profissional (Outfit & JetBrains Mono).
+
+
+4. ESTRUTURA DOS ARQUIVOS DO PROJETO
+--------------------------------------------------------------------------------
+- index.html        : Estrutura semântica da aplicação, cabeçalho, modais, formulários,
+                      tabelas e contêineres de gráficos.
+- style.css         : Design system completo em CSS moderno (Glassmorphism, gradientes,
+                      variáveis HSL, layout responsivo e micro-animações).
+- app.js            : Toda a lógica de negócio, cálculos matemáticos de DF/MTBF/MTTR,
+                      gerenciamento de estado, simulação preditiva, Chart.js,
+                      autenticação e persistência.
+- fleet_data.json   : Base de dados estruturada com o estado inicial dos 41 RTGs.
+- .nojekyll         : Arquivo de compatibilidade para publicação direta via GitHub Pages.
+
+
+5. INSTRUÇÕES PARA ABRIR NO NOVO DIRETÓRIO (ANTIGRAVITY IDE)
+--------------------------------------------------------------------------------
+Pasta de destino configurada:
+C:\Users\amelo\Downloads\Projeto_Disponibilidade_github\Disponibilidade-de-RTG
+
+Passos recomendados:
+1. Abra o Antigravity IDE (ou execute 'Open Folder' / 'agy' no terminal).
+2. Selecione a pasta acima como seu novo Workspace.
+3. Para rodar o projeto localmente, basta abrir o 'index.html' no navegador
+   ou utilizar um servidor web local simples (ex: Live Server / python -m http.server / npx serve).
+4. Todas as modificações futuras feitas no código podem ser commitadas e sincronizadas
+   diretamente com o repositório GitHub correspondente.
+================================================================================

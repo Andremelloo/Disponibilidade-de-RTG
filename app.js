@@ -1139,7 +1139,7 @@ const AUTH_STORAGE_KEY = 'rtg_dashboard_auth_token_v1';
 const PASSWORDS_EDITOR = ['5550333'];
 
 // Senha de Leitura (Apenas visualização do dashboard)
-const PASSWORDS_VIEWER = ['tcp@2025', 'tcp2025', 'rtg2025'];
+const PASSWORDS_VIEWER = ['tcp@2025'];
 
 function applyUserRole(role) {
     currentUserRole = role || 'viewer';
