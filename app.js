@@ -132,8 +132,15 @@ function saveLocalState() {
     }
 }
 
+let currentUserRole = 'viewer';
+const ROLE_STORAGE_KEY = 'rtg_dashboard_user_role_v1';
+
 function scheduleCloudAutoSave() {
     saveLocalState();
+    if (currentUserRole !== 'editor') {
+        showCloudStatus('sync', '👁️ Modo Leitura');
+        return;
+    }
     showCloudStatus('saving', '⏳ Alterações pendentes...');
     clearTimeout(cloudAutoSaveTimer);
     cloudAutoSaveTimer = setTimeout(() => {
@@ -142,6 +149,10 @@ function scheduleCloudAutoSave() {
 }
 
 async function saveFleetToCloud(isAuto = false) {
+    if (currentUserRole !== 'editor') {
+        if (!isAuto) alert('⚠️ Modo Leitura: Você precisa acessar com a senha de Edição (5550333) para salvar alterações na nuvem.');
+        return false;
+    }
     showCloudStatus('saving', isAuto ? '⏳ Salvando na Nuvem...' : '⏳ Gravando no GitHub...');
     saveLocalState();
 
@@ -1120,19 +1131,40 @@ function copySummaryToClipboard() {
 }
 
 /* ==========================================================================
-   Autenticação & Controle de Acesso Restrito (Senha)
+   Autenticação & Controle de Acesso Restrito (Duplo Perfil: Editor vs Leitura)
    ========================================================================== */
 const AUTH_STORAGE_KEY = 'rtg_dashboard_auth_token_v1';
-const DEFAULT_PASSWORD = 'tcp@2025';
 
-// Senhas aceitas (incluindo variações intuitivas de fábrica)
-const ACCEPTED_PASSWORDS = [
-    'tcp@2025',
-    'tcp2025',
-    'rtg2025',
-    'tcpmanutencao',
-    'admin@rtg'
-];
+// Senha de Edição (Permite alterar dados e gravar na nuvem)
+const PASSWORDS_EDITOR = ['5550333'];
+
+// Senha de Leitura (Apenas visualização do dashboard)
+const PASSWORDS_VIEWER = ['tcp@2025', 'tcp2025', 'rtg2025'];
+
+function applyUserRole(role) {
+    currentUserRole = role || 'viewer';
+    const roleBadge = document.getElementById('user-role-badge');
+    const roleIcon = document.getElementById('role-badge-icon');
+    const roleText = document.getElementById('role-badge-text');
+
+    document.body.classList.remove('mode-editor', 'mode-viewer');
+
+    if (currentUserRole === 'editor') {
+        document.body.classList.add('mode-editor');
+        if (roleBadge) {
+            roleBadge.className = 'badge-role editor';
+            if (roleIcon) roleIcon.textContent = '✏️';
+            if (roleText) roleText.textContent = 'Editor (Admin)';
+        }
+    } else {
+        document.body.classList.add('mode-viewer');
+        if (roleBadge) {
+            roleBadge.className = 'badge-role viewer';
+            if (roleIcon) roleIcon.textContent = '👁️';
+            if (roleText) roleText.textContent = 'Apenas Leitura';
+        }
+    }
+}
 
 function initAuth() {
     const overlay = document.getElementById('auth-modal-overlay');
@@ -1145,11 +1177,13 @@ function initAuth() {
 
     if (!overlay || !form || !input) return;
 
-    // Verifica se já está autenticado no localStorage ou sessionStorage
+    // Recupera perfil e token salvo
+    const savedRole = localStorage.getItem(ROLE_STORAGE_KEY) || sessionStorage.getItem(ROLE_STORAGE_KEY);
     const isAuthLocal = localStorage.getItem(AUTH_STORAGE_KEY) === 'authenticated';
     const isAuthSession = sessionStorage.getItem(AUTH_STORAGE_KEY) === 'authenticated';
 
-    if (isAuthLocal || isAuthSession) {
+    if ((isAuthLocal || isAuthSession) && savedRole) {
+        applyUserRole(savedRole);
         overlay.classList.add('hidden');
     } else {
         overlay.classList.remove('hidden');
@@ -1170,23 +1204,33 @@ function initAuth() {
         e.preventDefault();
         const entered = (input.value || '').trim();
 
-        // Checagem de senha
-        const isValid = ACCEPTED_PASSWORDS.some(pwd => pwd.toLowerCase() === entered.toLowerCase());
+        let determinedRole = null;
 
-        if (isValid) {
+        if (PASSWORDS_EDITOR.includes(entered)) {
+            determinedRole = 'editor';
+        } else if (PASSWORDS_VIEWER.some(p => p.toLowerCase() === entered.toLowerCase())) {
+            determinedRole = 'viewer';
+        }
+
+        if (determinedRole) {
             errorMsg.classList.remove('visible');
             errorMsg.textContent = '';
             
+            applyUserRole(determinedRole);
+
             if (rememberMe && rememberMe.checked) {
                 localStorage.setItem(AUTH_STORAGE_KEY, 'authenticated');
+                localStorage.setItem(ROLE_STORAGE_KEY, determinedRole);
             } else {
                 sessionStorage.setItem(AUTH_STORAGE_KEY, 'authenticated');
+                sessionStorage.setItem(ROLE_STORAGE_KEY, determinedRole);
             }
 
             overlay.classList.add('hidden');
             input.value = '';
+            recalculateAndRender();
         } else {
-            errorMsg.textContent = '❌ Senha incorreta. Tente novamente.';
+            errorMsg.textContent = '❌ Senha incorreta. Verifique e tente novamente.';
             errorMsg.classList.add('visible');
             input.focus();
             input.select();
@@ -1197,7 +1241,9 @@ function initAuth() {
     if (btnLock) {
         btnLock.addEventListener('click', () => {
             localStorage.removeItem(AUTH_STORAGE_KEY);
+            localStorage.removeItem(ROLE_STORAGE_KEY);
             sessionStorage.removeItem(AUTH_STORAGE_KEY);
+            sessionStorage.removeItem(ROLE_STORAGE_KEY);
             overlay.classList.remove('hidden');
             if (errorMsg) errorMsg.classList.remove('visible');
             input.value = '';

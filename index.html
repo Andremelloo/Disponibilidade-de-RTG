@@ -37,6 +37,10 @@
                     <span class="cloud-dot"></span>
                     <span id="cloud-status-text">☁️ Nuvem sincronizada</span>
                 </div>
+                <div class="badge-role" id="user-role-badge">
+                    <span id="role-badge-icon">✏️</span>
+                    <span id="role-badge-text">Editor</span>
+                </div>
                 <button class="btn-refresh btn-cloud-save" id="btn-save-cloud" title="Salvar todas as alterações no banco de dados da nuvem para todos os usuários">
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
@@ -72,7 +76,7 @@
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                         <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                     </svg>
-                    Bloquear
+                    Sair / Bloquear
                 </button>
             </div>
         </header>
@@ -91,7 +95,7 @@
 
                 <form id="auth-form" class="auth-form" onsubmit="return false;">
                     <div class="auth-input-wrapper">
-                        <input type="password" id="auth-password-input" class="auth-input" placeholder="Digite a senha de acesso..." autocomplete="current-password" required autofocus>
+                        <input type="password" id="auth-password-input" class="auth-input" placeholder="Digite sua senha de acesso..." autocomplete="current-password" required autofocus>
                         <button type="button" id="btn-toggle-pwd" class="btn-pwd-eye" title="Mostrar/Ocultar Senha">
                             👁️
                         </button>
@@ -110,7 +114,16 @@
                             <polyline points="12 5 19 12 12 19"></polyline>
                         </svg>
                     </button>
-                    <p class="auth-hint">🔒 Senha padrão inicial: <strong>tcp@2025</strong></p>
+                    <div class="auth-roles-info">
+                        <div class="auth-role-item">
+                            <span class="role-dot editor"></span>
+                            <span><strong>Senha de Edição (Admin):</strong> `5550333`</span>
+                        </div>
+                        <div class="auth-role-item">
+                            <span class="role-dot viewer"></span>
+                            <span><strong>Senha de Leitura:</strong> `tcp@2025`</span>
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>
