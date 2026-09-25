@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "updatedAt": "2026-09-25T17:12:00.431Z",
+  "updatedAt": "2026-09-25T17:12:11.808Z",
   "currentDay": 25,
   "monthDays": 30,
   "globalTarget": 0.875,
@@ -223,7 +223,7 @@
       "family": "Kalmar",
       "customMonthHours": null,
       "downtimeReal": 200,
-      "downtimePlanned": 0,
+      "downtimePlanned": 30,
       "failures": 1,
       "target": 0.875
     },
