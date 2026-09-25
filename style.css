@@ -705,6 +705,20 @@ label {
 .equipment-table td.col-sticky {
     width: 80px !important;
     min-width: 80px;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.equipment-table th:nth-child(2),
+.equipment-table td:nth-child(2) {
+    width: 130px !important;
+    min-width: 130px;
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .equipment-table th:nth-child(2),
