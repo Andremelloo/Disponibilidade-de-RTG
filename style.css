@@ -684,7 +684,22 @@ label {
     text-align: left;
     padding-left: 14px;
     border-right: 2px solid var(--border-color);
+    width: 100px;
+    /* reduced width for RTG (TAG) */
 }
+
+/* Fabricante / Família column */
+.equipment-table th:nth-child(2) {
+    width: 150px;
+    /* reduced width */
+}
+
+/* Operational input columns (hours) */
+.equipment-table th.th-input {
+    width: 100px;
+    /* reduced width for Tempo Parado até Hoje and Paradas Previstas */
+}
+
 
 .equipment-table th.col-sticky {
     background: var(--bg-surface-elevated);
