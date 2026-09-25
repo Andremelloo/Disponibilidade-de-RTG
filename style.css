@@ -1,15 +1,21 @@
 :root {
     /* Modern, vibrant palette (HSL) for premium look */
-    --bg-primary: #0a0f1a;               /* deep navy */
-    --bg-surface: #151e2b;               /* slightly lighter */
-    --bg-surface-elevated: #1f2a3c;      /* elevated panels */
-    --bg-glass: rgba(21, 30, 43, 0.85); /* glass backdrop */
+    --bg-primary: #0a0f1a;
+    /* deep navy */
+    --bg-surface: #151e2b;
+    /* slightly lighter */
+    --bg-surface-elevated: #1f2a3c;
+    /* elevated panels */
+    --bg-glass: rgba(21, 30, 43, 0.85);
+    /* glass backdrop */
 
     --border-color: rgba(255, 255, 255, 0.07);
     --border-highlight: rgba(0, 200, 255, 0.35);
 
-    --text-primary: #e2e8f0;            /* lighter gray */
-    --text-secondary: #a0aec0;          /* muted */
+    --text-primary: #e2e8f0;
+    /* lighter gray */
+    --text-secondary: #a0aec0;
+    /* muted */
     --text-muted: #718096;
 
     --accent-blue: hsl(200, 90%, 55%);
@@ -48,7 +54,7 @@ body {
     color: var(--text-primary);
     min-height: 100vh;
     line-height: 1.5;
-    background-image: 
+    background-image:
         radial-gradient(circle at 10% 10%, rgba(14, 165, 233, 0.08) 0%, transparent 40%),
         radial-gradient(circle at 90% 90%, rgba(20, 184, 166, 0.06) 0%, transparent 40%);
     background-attachment: fixed;
@@ -164,8 +170,17 @@ body {
 }
 
 @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.85); }
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.4;
+        transform: scale(0.85);
+    }
 }
 
 .btn-refresh {
@@ -247,7 +262,8 @@ body {
     color: var(--text-primary);
 }
 
-.kpi-diff, .kpi-badge {
+.kpi-diff,
+.kpi-badge {
     font-size: 0.74rem;
     font-weight: 600;
     padding: 2px 6px;
@@ -361,6 +377,7 @@ body {
     cursor: pointer;
     transition: background 0.3s, border-color 0.3s, color 0.3s;
 }
+
 .btn-preset-meta:hover {
     background: rgba(255, 255, 255, 0.12);
     border-color: var(--accent-blue);
@@ -532,9 +549,17 @@ label {
     color: var(--text-secondary);
     animation: fadeIn 0.6s ease forwards;
 }
+
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .legend-item {
@@ -549,10 +574,21 @@ label {
     border-radius: 50%;
 }
 
-.dot.actual { background: var(--accent-blue); }
-.dot.proj-opt { background: var(--status-success); }
-.dot.proj-trend { background: var(--status-warning); }
-.dot.meta { background: var(--status-danger); }
+.dot.actual {
+    background: var(--accent-blue);
+}
+
+.dot.proj-opt {
+    background: var(--status-success);
+}
+
+.dot.proj-trend {
+    background: var(--status-warning);
+}
+
+.dot.meta {
+    background: var(--status-danger);
+}
 
 /* ==========================================================================
    Equipment Table
@@ -564,10 +600,12 @@ label {
 }
 
 .table-responsive {
-    overflow: auto; /* allow both horizontal and vertical scrolling */
+    overflow: auto;
+    /* allow both horizontal and vertical scrolling */
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    max-height: 80vh; /* increased height for better view */
+    max-height: 90vh;
+    /* increased height for better view */
 }
 
 .equipment-table {
@@ -593,7 +631,8 @@ label {
 /* Second header row (forecast days) */
 .equipment-table thead tr:nth-child(2) th {
     position: sticky;
-    top: 42px; /* height of first header row */
+    top: 42px;
+    /* height of first header row */
     z-index: 4;
     background: var(--bg-surface-elevated);
 }
@@ -798,7 +837,8 @@ input[type="number"],
     }
 }
 
-.ranking-list, .recommendations-list {
+.ranking-list,
+.recommendations-list {
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -932,8 +972,15 @@ input[type="number"],
 }
 
 @keyframes pulseSave {
-    0% { transform: scale(0.9); opacity: 0.6; }
-    100% { transform: scale(1.3); opacity: 1; }
+    0% {
+        transform: scale(0.9);
+        opacity: 0.6;
+    }
+
+    100% {
+        transform: scale(1.3);
+        opacity: 1;
+    }
 }
 
 /* ==========================================================================
@@ -978,8 +1025,15 @@ input[type="number"],
 }
 
 @keyframes modalPopIn {
-    0% { transform: scale(0.9) translateY(20px); opacity: 0; }
-    100% { transform: scale(1) translateY(0); opacity: 1; }
+    0% {
+        transform: scale(0.9) translateY(20px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
 }
 
 .auth-icon-badge {
@@ -1093,9 +1147,21 @@ input[type="number"],
 }
 
 @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    20%, 60% { transform: translateX(-6px); }
-    40%, 80% { transform: translateX(6px); }
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20%,
+    60% {
+        transform: translateX(-6px);
+    }
+
+    40%,
+    80% {
+        transform: translateX(6px);
+    }
 }
 
 .btn-auth-submit {
@@ -1205,5 +1271,3 @@ body.mode-viewer #btn-reset,
 body.mode-viewer .btn-remove {
     display: none !important;
 }
-
-
