@@ -564,10 +564,10 @@ label {
 }
 
 .table-responsive {
-    overflow-x: auto;
+    overflow: auto; /* allow both horizontal and vertical scrolling */
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    max-height: 580px;
+    max-height: 80vh; /* increased height for better view */
 }
 
 .equipment-table {
