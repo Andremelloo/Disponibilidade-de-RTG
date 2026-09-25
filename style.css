@@ -690,7 +690,7 @@ label {
 
 /* Fabricante / Família column */
 .equipment-table th:nth-child(2) {
-    width: 150px;
+    width: 100px;
     /* reduced width */
 }
 
