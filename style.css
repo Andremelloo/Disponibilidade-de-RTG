@@ -721,11 +721,7 @@ label {
     white-space: nowrap;
 }
 
-.equipment-table th:nth-child(2),
-.equipment-table td:nth-child(2) {
-    width: 80px !important;
-    min-width: 130px;
-}
+
 
 
 
