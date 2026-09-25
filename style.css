@@ -690,7 +690,7 @@ label {
 
 /* Fabricante / Família column */
 .equipment-table th:nth-child(2) {
-    width: 100px;
+    width: 150px;
     /* reduced width */
 }
 
@@ -699,6 +699,20 @@ label {
     width: 100px;
     /* reduced width for Tempo Parado até Hoje and Paradas Previstas */
 }
+
+/* Adjusted column widths */
+.equipment-table th.col-sticky,
+.equipment-table td.col-sticky {
+    width: 80px !important;
+    min-width: 80px;
+}
+
+.equipment-table th:nth-child(2),
+.equipment-table td:nth-child(2) {
+    width: 130px !important;
+    min-width: 130px;
+}
+
 
 
 .equipment-table th.col-sticky {
