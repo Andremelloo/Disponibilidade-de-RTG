@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "updatedAt": "2026-09-25T18:50:59.023Z",
+  "updatedAt": "2026-09-25T19:44:46.005Z",
   "currentDay": 25,
   "monthDays": 30,
   "globalTarget": 0.875,
@@ -14,7 +14,7 @@
       "customMonthHours": 240,
       "downtimeReal": 10,
       "downtimePlanned": 0,
-      "failures": 3,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -24,7 +24,7 @@
       "customMonthHours": null,
       "downtimeReal": 24,
       "downtimePlanned": 0,
-      "failures": 2,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -34,7 +34,7 @@
       "customMonthHours": null,
       "downtimeReal": 55,
       "downtimePlanned": 0,
-      "failures": 6,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -44,7 +44,7 @@
       "customMonthHours": null,
       "downtimeReal": 204,
       "downtimePlanned": 0,
-      "failures": 1,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -54,7 +54,7 @@
       "customMonthHours": null,
       "downtimeReal": 27,
       "downtimePlanned": 0,
-      "failures": 4,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -64,7 +64,7 @@
       "customMonthHours": null,
       "downtimeReal": 70,
       "downtimePlanned": 0,
-      "failures": 2,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -74,7 +74,7 @@
       "customMonthHours": null,
       "downtimeReal": 119,
       "downtimePlanned": 0,
-      "failures": 7,
+      "failures": 70,
       "target": 0.875
     },
     {
@@ -84,7 +84,7 @@
       "customMonthHours": null,
       "downtimeReal": 182,
       "downtimePlanned": 0,
-      "failures": 2,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -94,7 +94,7 @@
       "customMonthHours": null,
       "downtimeReal": 142,
       "downtimePlanned": 30,
-      "failures": 3,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -104,7 +104,7 @@
       "customMonthHours": null,
       "downtimeReal": 80,
       "downtimePlanned": 0,
-      "failures": 1,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -114,7 +114,7 @@
       "customMonthHours": null,
       "downtimeReal": 107,
       "downtimePlanned": 0,
-      "failures": 2,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -124,7 +124,7 @@
       "customMonthHours": null,
       "downtimeReal": 106,
       "downtimePlanned": 0,
-      "failures": 3,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -134,7 +134,7 @@
       "customMonthHours": null,
       "downtimeReal": 51,
       "downtimePlanned": 0,
-      "failures": 1,
+      "failures": 10,
       "target": 0.875
     },
     {
@@ -144,7 +144,7 @@
       "customMonthHours": null,
       "downtimeReal": 162,
       "downtimePlanned": 0,
-      "failures": 4,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -154,7 +154,7 @@
       "customMonthHours": 504,
       "downtimeReal": 130,
       "downtimePlanned": 0,
-      "failures": 2,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -164,7 +164,7 @@
       "customMonthHours": null,
       "downtimeReal": 162,
       "downtimePlanned": 0,
-      "failures": 1,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -174,7 +174,7 @@
       "customMonthHours": null,
       "downtimeReal": 100,
       "downtimePlanned": 0,
-      "failures": 3,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -184,7 +184,7 @@
       "customMonthHours": null,
       "downtimeReal": 90,
       "downtimePlanned": 0,
-      "failures": 5,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -194,7 +194,7 @@
       "customMonthHours": null,
       "downtimeReal": 26,
       "downtimePlanned": 0,
-      "failures": 1,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -204,7 +204,7 @@
       "customMonthHours": null,
       "downtimeReal": 21,
       "downtimePlanned": 0,
-      "failures": 2,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -214,7 +214,7 @@
       "customMonthHours": null,
       "downtimeReal": 111,
       "downtimePlanned": 0,
-      "failures": 3,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -224,7 +224,7 @@
       "customMonthHours": null,
       "downtimeReal": 200,
       "downtimePlanned": 30,
-      "failures": 1,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -234,7 +234,7 @@
       "customMonthHours": null,
       "downtimeReal": 39,
       "downtimePlanned": 0,
-      "failures": 2,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -244,7 +244,7 @@
       "customMonthHours": null,
       "downtimeReal": 110,
       "downtimePlanned": 0,
-      "failures": 3,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -254,7 +254,7 @@
       "customMonthHours": null,
       "downtimeReal": 46,
       "downtimePlanned": 0,
-      "failures": 2,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -264,7 +264,7 @@
       "customMonthHours": null,
       "downtimeReal": 44,
       "downtimePlanned": 0,
-      "failures": 4,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -274,7 +274,7 @@
       "customMonthHours": null,
       "downtimeReal": 14,
       "downtimePlanned": 0,
-      "failures": 2,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -284,7 +284,7 @@
       "customMonthHours": null,
       "downtimeReal": 43,
       "downtimePlanned": 0,
-      "failures": 1,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -294,7 +294,7 @@
       "customMonthHours": null,
       "downtimeReal": 101,
       "downtimePlanned": 0,
-      "failures": 2,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -304,7 +304,7 @@
       "customMonthHours": null,
       "downtimeReal": 11,
       "downtimePlanned": 0,
-      "failures": 3,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -314,7 +314,7 @@
       "customMonthHours": null,
       "downtimeReal": 18,
       "downtimePlanned": 0,
-      "failures": 6,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -334,7 +334,7 @@
       "customMonthHours": null,
       "downtimeReal": 63,
       "downtimePlanned": 0,
-      "failures": 2,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -344,7 +344,7 @@
       "customMonthHours": null,
       "downtimeReal": 23,
       "downtimePlanned": 0,
-      "failures": 3,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -354,7 +354,7 @@
       "customMonthHours": null,
       "downtimeReal": 26,
       "downtimePlanned": 0,
-      "failures": 1,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -364,7 +364,7 @@
       "customMonthHours": null,
       "downtimeReal": 150,
       "downtimePlanned": 0,
-      "failures": 2,
+      "failures": 0,
       "target": 0.875
     },
     {
@@ -374,7 +374,7 @@
       "customMonthHours": null,
       "downtimeReal": 96,
       "downtimePlanned": 0,
-      "failures": 2,
+      "failures": 0,
       "target": 0.875
     }
   ]
