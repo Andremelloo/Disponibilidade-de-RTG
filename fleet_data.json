@@ -1,8 +1,8 @@
 {
   "version": "2.0",
-  "updatedAt": "2026-09-25T16:44:51.750Z",
+  "updatedAt": "2026-09-25T16:44:56.668Z",
   "currentDay": 15,
-  "monthDays": 30,
+  "monthDays": 31,
   "globalTarget": 0.875,
   "selectedEquipForChart": "ALL",
   "nextId": 42,
@@ -11,8 +11,8 @@
       "id": 1,
       "tag": "RTG-01",
       "family": "Konecranes",
-      "customMonthHours": null,
-      "downtimeReal": 0,
+      "customMonthHours": 240,
+      "downtimeReal": 10,
       "downtimePlanned": 0,
       "failures": 3,
       "target": 0.875
@@ -22,7 +22,7 @@
       "tag": "RTG-02",
       "family": "Konecranes",
       "customMonthHours": null,
-      "downtimeReal": 0,
+      "downtimeReal": 24,
       "downtimePlanned": 0,
       "failures": 2,
       "target": 0.875
@@ -32,7 +32,7 @@
       "tag": "RTG-03",
       "family": "Konecranes",
       "customMonthHours": null,
-      "downtimeReal": 52,
+      "downtimeReal": 55,
       "downtimePlanned": 0,
       "failures": 6,
       "target": 0.875
@@ -42,7 +42,7 @@
       "tag": "RTG-04",
       "family": "Konecranes",
       "customMonthHours": null,
-      "downtimeReal": 0,
+      "downtimeReal": 204,
       "downtimePlanned": 0,
       "failures": 1,
       "target": 0.875
@@ -52,7 +52,7 @@
       "tag": "RTG-05",
       "family": "Konecranes",
       "customMonthHours": null,
-      "downtimeReal": 0,
+      "downtimeReal": 33,
       "downtimePlanned": 0,
       "failures": 4,
       "target": 0.875
@@ -62,19 +62,9 @@
       "tag": "RTG-06",
       "family": "Konecranes",
       "customMonthHours": null,
-      "downtimeReal": 0,
+      "downtimeReal": 19,
       "downtimePlanned": 0,
       "failures": 2,
-      "target": 0.875
-    },
-    {
-      "id": 8,
-      "tag": "RTG-08",
-      "family": "Kalmar",
-      "customMonthHours": null,
-      "downtimeReal": 12,
-      "downtimePlanned": 0,
-      "failures": 1,
       "target": 0.875
     },
     {
@@ -188,16 +178,6 @@
       "target": 0.875
     },
     {
-      "id": 20,
-      "tag": "RTG-20",
-      "family": "Konecranes",
-      "customMonthHours": null,
-      "downtimeReal": 14.5,
-      "downtimePlanned": 0,
-      "failures": 2,
-      "target": 0.875
-    },
-    {
       "id": 21,
       "tag": "RTG-21",
       "family": "Kalmar",
@@ -275,16 +255,6 @@
       "downtimeReal": 20,
       "downtimePlanned": 0,
       "failures": 2,
-      "target": 0.875
-    },
-    {
-      "id": 29,
-      "tag": "RTG-29",
-      "family": "Kalmar",
-      "customMonthHours": null,
-      "downtimeReal": 11.5,
-      "downtimePlanned": 0,
-      "failures": 1,
       "target": 0.875
     },
     {
