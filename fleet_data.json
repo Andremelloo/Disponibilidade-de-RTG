@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "updatedAt": "2026-09-25T17:02:12.572Z",
+  "updatedAt": "2026-09-25T17:06:19.012Z",
   "currentDay": 25,
   "monthDays": 30,
   "globalTarget": 0.875,
@@ -93,7 +93,7 @@
       "family": "Konecranes",
       "customMonthHours": null,
       "downtimeReal": 142,
-      "downtimePlanned": 0,
+      "downtimePlanned": 100,
       "failures": 3,
       "target": 0.875
     },
