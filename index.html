@@ -1,18 +1,23 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Estratégia de Disponibilidade por Equipamento | Simulador Preditivo 10 Dias (41 RTGs)</title>
-    <meta name="description" content="Dashboard Executivo de Engenharia de Manutenção com Simulador Preditivo por Equipamento e Frota Consolidada para 41 RTGs (Konecranes, Kalmar e ZPMC).">
+    <meta name="description"
+        content="Dashboard Executivo de Engenharia de Manutenção com Simulador Preditivo por Equipamento e Frota Consolidada para 41 RTGs (Konecranes, Kalmar e ZPMC).">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="app-container">
         <!-- Top Navigation Bar -->
@@ -20,15 +25,18 @@
             <div class="brand">
                 <div class="logo-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                        <path
+                            d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
                     </svg>
                 </div>
                 <div>
                     <div class="brand-title-row">
                         <h1 class="brand-title">Estratégia & Disponibilidade por Equipamento</h1>
-                        <span class="badge-version" id="app-version-badge" title="Versão Oficial do Sistema">v1.0.1</span>
+                        <span class="badge-version" id="app-version-badge"
+                            title="Versão Oficial do Sistema">v1.0.1</span>
                     </div>
-                    <p class="brand-subtitle">Simulador Preditivo Sequencial (D+1 a D+10) & Fechamento Mensal (Frota Oficial de 41 RTGs)</p>
+                    <p class="brand-subtitle">Simulador Preditivo Sequencial (D+1 a D+10) & Fechamento Mensal (Frota
+                        Oficial de 41 RTGs)</p>
                 </div>
             </div>
             <div class="navbar-actions">
@@ -36,7 +44,8 @@
                     <span class="status-dot"></span>
                     <span id="badge-text">FROTA ATIVA: 41 RTGs</span>
                 </div>
-                <div class="cloud-sync-indicator" id="cloud-status" title="Sincronização com o Banco de Dados na Nuvem (GitHub)">
+                <div class="cloud-sync-indicator" id="cloud-status"
+                    title="Sincronização com o Banco de Dados na Nuvem (GitHub)">
                     <span class="cloud-dot"></span>
                     <span id="cloud-status-text">☁️ Nuvem sincronizada</span>
                 </div>
@@ -44,7 +53,8 @@
                     <span id="role-badge-icon">✏️</span>
                     <span id="role-badge-text">Editor</span>
                 </div>
-                <button class="btn-refresh btn-cloud-save" id="btn-save-cloud" title="Salvar todas as alterações no banco de dados da nuvem para todos os usuários">
+                <button class="btn-refresh btn-cloud-save" id="btn-save-cloud"
+                    title="Salvar todas as alterações no banco de dados da nuvem para todos os usuários">
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
                         <polyline points="17 21 17 13 7 13 7 21"></polyline>
@@ -69,8 +79,8 @@
                 </button>
                 <button class="btn-refresh" id="btn-reset" title="Restaurar Valores Padrão">
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-                        <path d="M3 3v5h5"/>
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                        <path d="M3 3v5h5" />
                     </svg>
                     Resetar
                 </button>
@@ -98,7 +108,9 @@
 
                 <form id="auth-form" class="auth-form" onsubmit="return false;">
                     <div class="auth-input-wrapper">
-                        <input type="password" id="auth-password-input" class="auth-input" placeholder="Digite sua senha de acesso..." autocomplete="current-password" required autofocus>
+                        <input type="password" id="auth-password-input" class="auth-input"
+                            placeholder="Digite sua senha de acesso..." autocomplete="current-password" required
+                            autofocus>
                         <button type="button" id="btn-toggle-pwd" class="btn-pwd-eye" title="Mostrar/Ocultar Senha">
                             👁️
                         </button>
@@ -112,7 +124,8 @@
                     <div id="auth-error-msg" class="auth-error-msg"></div>
                     <button type="submit" id="btn-submit-auth" class="btn-auth-submit">
                         <span>Acessar Dashboard</span>
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                            stroke-width="2">
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                             <polyline points="12 5 19 12 12 19"></polyline>
                         </svg>
@@ -120,11 +133,13 @@
                     <div class="auth-roles-info">
                         <div class="auth-role-item">
                             <span class="role-dot editor"></span>
-                            <span><strong>Perfil Edição (Admin):</strong> Simulações preditivas, ajuste de horas, salvar na nuvem e reset</span>
+                            <span><strong>Perfil Edição (Admin):</strong> Simulações preditivas, ajuste de horas, salvar
+                                na nuvem e reset</span>
                         </div>
                         <div class="auth-role-item">
                             <span class="role-dot viewer"></span>
-                            <span><strong>Perfil Leitura:</strong> Visualização e acompanhamento de indicadores da frota</span>
+                            <span><strong>Perfil Leitura:</strong> Visualização e acompanhamento de indicadores da
+                                frota</span>
                         </div>
                     </div>
                 </form>
@@ -198,13 +213,16 @@
                         <span class="val-display" id="display-target">87.5%</span>
                     </div>
                     <div class="meta-input-dual">
-                        <input type="range" id="input-target" min="75" max="99.5" step="0.1" value="87.5" class="slider-control slider-target">
+                        <input type="range" id="input-target" min="75" max="99.5" step="0.1" value="87.5"
+                            class="slider-control slider-target">
                         <div class="input-with-pct">
-                            <input type="number" id="input-target-number" min="70" max="99.9" step="0.1" value="87.5" class="text-input-num">
+                            <input type="number" id="input-target-number" min="70" max="99.9" step="0.1" value="87.5"
+                                class="text-input-num">
                             <span class="pct-symbol">%</span>
                         </div>
                     </div>
-                    <p class="field-hint">Altere livremente a meta acima. O gráfico, as folgas e os semáforos dos 41 RTGs mudam na hora!</p>
+                    <p class="field-hint">Altere livremente a meta acima. O gráfico, as folgas e os semáforos dos 41
+                        RTGs mudam na hora!</p>
                 </div>
 
                 <!-- Dia Atual do Mês (D0) ajustado até 31 -->
@@ -229,14 +247,16 @@
                         <span class="val-display" id="display-month-days">31 Dias (744h)</span>
                     </div>
                     <select id="select-month-days" class="select-control">
-                        <option value="31" selected>Mês de 31 Dias (Janeiro, Março, Maio, Julho, Agosto, Outubro, Dezembro - 744h)</option>
+                        <option value="31" selected>Mês de 31 Dias (Janeiro, Março, Maio, Julho, Agosto, Outubro,
+                            Dezembro - 744h)</option>
                         <option value="30">Mês de 30 Dias (Abril, Junho, Setembro, Novembro - 720h)</option>
                         <option value="28">Mês de 28 Dias (Fevereiro - 672h)</option>
                         <option value="29">Mês de 29 Dias (Fevereiro Bissexto - 696h)</option>
                     </select>
 
                     <div class="equip-focus-row" style="margin-top: 10px;">
-                        <label for="select-chart-equip" style="font-size:0.78rem; font-weight:600; color:#94a3b8;">Foco no Gráfico:</label>
+                        <label for="select-chart-equip" style="font-size:0.78rem; font-weight:600; color:#94a3b8;">Foco
+                            no Gráfico:</label>
                         <select id="select-chart-equip" class="select-control" style="width:100%; margin-top:4px;">
                             <option value="ALL">Média da Frota Consolidada (41 RTGs)</option>
                             <!-- Populated dynamically -->
@@ -251,13 +271,15 @@
             <div class="card-header">
                 <div class="card-title-group">
                     <span class="card-tag">EVOLUÇÃO PREDITIVA SEQUENCIAL</span>
-                    <h2 class="card-title" id="chart-main-title">Trajetória da Disponibilidade: Realizada vs Previsão D+1 a D+10 vs Fechamento</h2>
+                    <h2 class="card-title" id="chart-main-title">Trajetória da Disponibilidade: Realizada vs Previsão
+                        D+1 a D+10 vs Fechamento</h2>
                 </div>
                 <div class="chart-legend-custom">
                     <span class="legend-item"><span class="dot actual"></span>Realizado (Hoje)</span>
                     <span class="legend-item"><span class="dot proj-opt"></span>Sequencial (D+1 a D+10)</span>
                     <span class="legend-item"><span class="dot proj-trend"></span>Fechamento Estimado</span>
-                    <span class="legend-item"><span class="dot meta"></span>Meta de Visualização (<span id="legend-target-val">87.5%</span>)</span>
+                    <span class="legend-item"><span class="dot meta"></span>Meta de Visualização (<span
+                            id="legend-target-val">87.5%</span>)</span>
                 </div>
             </div>
             <div class="chart-wrapper">
@@ -270,13 +292,15 @@
             <div class="card-header">
                 <div class="card-title-group">
                     <span class="card-tag">MATRIZ OPERACIONAL DOS 41 RTGs</span>
-                    <h2 class="card-title">Preenchimento Direto: "Tempo Parado até o Momento" & "Paradas Previstas até o Fim do Mês"</h2>
+                    <h2 class="card-title">Preenchimento Direto: "Tempo Parado até o Momento" & "Paradas Previstas até o
+                        Fim do Mês"</h2>
                 </div>
                 <div class="table-actions">
                     <button class="btn-export-csv" id="btn-copy-summary" title="Copiar resumo para relatório diário">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                         </svg>
                         Copiar Relatório
                     </button>
@@ -284,15 +308,18 @@
             </div>
 
             <p class="table-instructions">
-                💡 <strong>Composição da Frota:</strong> RTG 01-06 (<strong>Konecranes</strong>) | RTG 07-10 (<strong>Kalmar</strong>) | RTG 11-20 (<strong>Konecranes</strong>) | RTG 21-30 (<strong>Kalmar</strong>) | RTG 31-41 (<strong>ZPMC</strong>). Novos equipamentos inseridos serão atribuídos como <strong>ZPMC</strong>.
+                💡 <strong>Composição da Frota:</strong> RTG 01-06 (<strong>Kone</strong>) | RTG 07-10
+                (<strong>Kalmar</strong>) | RTG 11-20 (<strong>Kone</strong>) | RTG 21-30
+                (<strong>Kalmar</strong>) | RTG 31-41 (<strong>ZPMC</strong>). Novos equipamentos inseridos serão
+                atribuídos como <strong>ZPMC</strong>.
             </p>
 
             <div class="table-responsive">
                 <table class="equipment-table" id="equipment-table">
                     <thead>
                         <tr>
-                            <th rowspan="2" class="col-sticky">RTG (TAG)</th>
-                            <th rowspan="2">Fabricante / Família</th>
+                            <th rowspan="2" class="col-sticky">RTG</th>
+                            <th rowspan="2">Fabricante</th>
                             <th colspan="3" class="th-input-group">✏️ ENTRADAS OPERACIONAIS (HORAS)</th>
                             <th rowspan="2">Falhas (OS)</th>
                             <th rowspan="2">Disp. Atual (Hoje)</th>
@@ -305,7 +332,9 @@
                             <th rowspan="2" class="th-actions">Ações</th>
                         </tr>
                         <tr id="sub-header-days">
-                            <th class="th-input" title="Duração padrão do mês ou digite horas personalizadas para este RTG">Horas no Mês (h)</th>
+                            <th class="th-input"
+                                title="Duração padrão do mês ou digite horas personalizadas para este RTG">Horas no Mês
+                                (h)</th>
                             <th class="th-input">Tempo Parado até Hoje (h)</th>
                             <th class="th-input">Paradas Previstas até Fim Mês (h)</th>
                             <th class="th-d-forecast">D+1</th>
@@ -362,4 +391,5 @@
 
     <script src="app.js"></script>
 </body>
+
 </html>
