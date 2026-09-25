@@ -690,7 +690,7 @@ label {
 
 /* Fabricante / Família column */
 .equipment-table th:nth-child(2) {
-    width: 150px;
+    width: 80px;
     /* reduced width */
 }
 
@@ -713,9 +713,9 @@ label {
 
 .equipment-table th:nth-child(2),
 .equipment-table td:nth-child(2) {
-    width: 130px !important;
-    min-width: 130px;
-    max-width: 130px;
+    width: 80px !important;
+    min-width: 80px;
+    max-width: 80px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -723,7 +723,7 @@ label {
 
 .equipment-table th:nth-child(2),
 .equipment-table td:nth-child(2) {
-    width: 130px !important;
+    width: 80px !important;
     min-width: 130px;
 }
 

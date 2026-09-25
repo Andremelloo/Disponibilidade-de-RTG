@@ -13,11 +13,11 @@
 
 function getManufacturerName(num) {
     if (num >= 1 && num <= 6) {
-        return "Konecranes";
+        return "Kone";
     } else if (num >= 7 && num <= 10) {
         return "Kalmar";
     } else if (num >= 11 && num <= 20) {
-        return "Konecranes";
+        return "Kone";
     } else if (num >= 21 && num <= 30) {
         return "Kalmar";
     } else {
