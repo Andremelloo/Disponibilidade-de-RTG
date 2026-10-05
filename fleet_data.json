@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "updatedAt": "2026-10-05T17:50:58.983Z",
+  "updatedAt": "2026-10-05T17:51:03.687Z",
   "currentDay": 5,
   "monthDays": 31,
   "globalTarget": 0.875,
@@ -62,7 +62,7 @@
       "tag": "RTG-06",
       "family": "Konecranes",
       "customMonthHours": null,
-      "downtimeReal": 8,
+      "downtimeReal": 8.7,
       "downtimePlanned": 0,
       "failures": 0,
       "target": 0.875
