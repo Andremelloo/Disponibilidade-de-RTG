@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "updatedAt": "2026-10-05T18:00:36.793Z",
+  "updatedAt": "2026-10-05T18:00:58.451Z",
   "currentDay": 5,
   "monthDays": 31,
   "globalTarget": 0.875,
@@ -222,7 +222,7 @@
       "tag": "RTG-25",
       "family": "Kalmar",
       "customMonthHours": null,
-      "downtimeReal": 200,
+      "downtimeReal": 13,
       "downtimePlanned": 30,
       "failures": 0,
       "target": 0.875
