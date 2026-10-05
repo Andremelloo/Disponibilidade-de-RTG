@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "updatedAt": "2026-10-05T18:02:15.490Z",
+  "updatedAt": "2026-10-05T18:02:59.522Z",
   "currentDay": 5,
   "monthDays": 31,
   "globalTarget": 0.875,
@@ -272,7 +272,7 @@
       "tag": "RTG-31",
       "family": "ZPMC",
       "customMonthHours": null,
-      "downtimeReal": 14,
+      "downtimeReal": 5.8,
       "downtimePlanned": 0,
       "failures": 0,
       "target": 0.875
