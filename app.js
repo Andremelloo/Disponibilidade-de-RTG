@@ -148,7 +148,14 @@ function scheduleCloudAutoSave() {
     }, 2500);
 }
 
-async function saveFleetToCloud(isAuto = false) {
+async async function saveFleetToCloud(isAuto = false) {
+    // Verifica se o token está presente – caso contrário não há como gravar na nuvem
+    if (!GITHUB_TOKEN) {
+        alert('⚠️ Token do GitHub não configurado. Abra a página e insira o token quando solicitado.');
+        console.warn('saveFleetToCloud abortado: GITHUB_TOKEN ausente');
+        return false;
+    }
+
     if (currentUserRole !== 'editor') {
         if (!isAuto) alert('⚠️ Modo Leitura: Você precisa acessar com a senha de Edição (5550333) para salvar alterações na nuvem.');
         return false;
@@ -445,7 +452,51 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Resetar para o padrão com confirmação segura e limpeza do storage
-    btnReset.addEventListener('click', () => {
+    // -------------------------------------------------------------------------
+// Resetar para o padrão com confirmação segura e limpeza do storage
+// -------------------------------------------------------------------------
+btnReset.addEventListener('click', async () => {
+    const confirmed = confirm("Deseja realmente restaurar todos os dados para o padrão original da fábrica?\n(41 RTGs, 31 dias, dia 15, meta 87.5%, paradas previstas 0h)");
+    if (!confirmed) return;
+
+    // Limpa caches locais
+    try {
+        localStorage.removeItem(STORAGE_KEY);
+        sessionStorage.removeItem(STORAGE_KEY);
+    } catch (e) {}
+
+    // Re‑inicializa estado
+    currentDay = 15;
+    monthDays = 31;
+    globalTarget = 0.875;
+    selectedEquipForChart = "ALL";
+    nextId = 42;
+    equipmentList = generateDefault41RTGs();
+
+    // Atualiza controles UI
+    inputCurrentDay.max = 31;
+    inputCurrentDay.value = 15;
+    selectMonthDays.value = "31";
+    displayCurrentDay.textContent = "Dia 15 de 31";
+    displayMonthDays.textContent = "31 Dias (744h)";
+    document.getElementById('kpi-title-month-end').textContent = "Previsão Fechamento (Dia 31 - 744h)";
+
+    applyGlobalTargetToUI(globalTarget);
+    updateSelectOptions();
+    recalculateAndRender();
+
+    // Salva na nuvem e aguarda resultado
+    if (currentUserRole === 'editor') {
+        btnReset.disabled = true;
+        const saved = await saveFleetToCloud(false);
+        btnReset.disabled = false;
+        if (!saved) {
+            alert('⚠️ Falha ao salvar o reset na nuvem. Verifique seu token e permissões.');
+        }
+    } else {
+        alert('⚠️ Modo Leitura: o reset foi aplicado apenas localmente. Use a senha de edição (5550333) para gravar na nuvem.');
+    }
+});
         const confirmed = confirm("Deseja realmente restaurar todos os dados para o padrão original da fábrica?\n(41 RTGs, 31 dias, dia 15, meta 87.5%, paradas previstas 0h)");
         if (!confirmed) return;
 
