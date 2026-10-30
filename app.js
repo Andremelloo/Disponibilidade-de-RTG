@@ -1239,6 +1239,98 @@ function applyUserRole(role) {
 }
 
 function initAuth() {
+    console.log('Initializing authentication');
+    const overlay = document.getElementById('auth-modal-overlay');
+    const form = document.getElementById('auth-form');
+    const input = document.getElementById('auth-password-input');
+    const toggleBtn = document.getElementById('btn-toggle-pwd');
+    const errorMsg = document.getElementById('auth-error-msg');
+    const rememberMe = document.getElementById('auth-remember-me');
+    const btnLock = document.getElementById('btn-lock');
+
+    if (!overlay || !form || !input) {
+        console.warn('Auth modal elements not found');
+        return;
+    }
+
+    // Retrieve saved role / token
+    const savedRole = localStorage.getItem(ROLE_STORAGE_KEY) || sessionStorage.getItem(ROLE_STORAGE_KEY);
+    const isAuthLocal = localStorage.getItem(AUTH_STORAGE_KEY) === 'authenticated';
+    const isAuthSession = sessionStorage.getItem(AUTH_STORAGE_KEY) === 'authenticated';
+    console.log('Saved role:', savedRole, 'AuthLocal:', isAuthLocal, 'AuthSession:', isAuthSession);
+
+    if ((isAuthLocal || isAuthSession) && savedRole) {
+        applyUserRole(savedRole);
+        overlay.classList.add('hidden');
+    } else {
+        overlay.classList.remove('hidden');
+        setTimeout(() => input.focus(), 250);
+    }
+
+    // Toggle password visibility
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            toggleBtn.textContent = isPassword ? '👁️' : '🙈';
+        });
+    }
+
+    // Form submission handling
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const enteredRaw = (input.value || '').trim();
+        const entered = enteredRaw.replace(/\s+/g, ''); // remove any spaces
+        console.log('Password entered:', entered);
+
+        let determinedRole = null;
+        // Accept numeric editor password even if entered as number
+        if (PASSWORDS_EDITOR.includes(entered) || PASSWORDS_EDITOR.includes(String(parseInt(entered, 10)))) {
+            determinedRole = 'editor';
+        } else if (PASSWORDS_VIEWER.some(p => p.toLowerCase() === entered.toLowerCase())) {
+            determinedRole = 'viewer';
+        }
+
+        if (determinedRole) {
+            console.log('Authentication success, role:', determinedRole);
+            errorMsg.classList.remove('visible');
+            errorMsg.textContent = '';
+            applyUserRole(determinedRole);
+
+            if (rememberMe && rememberMe.checked) {
+                localStorage.setItem(AUTH_STORAGE_KEY, 'authenticated');
+                localStorage.setItem(ROLE_STORAGE_KEY, determinedRole);
+            } else {
+                sessionStorage.setItem(AUTH_STORAGE_KEY, 'authenticated');
+                sessionStorage.setItem(ROLE_STORAGE_KEY, determinedRole);
+            }
+            overlay.classList.add('hidden');
+            input.value = '';
+            recalculateAndRender();
+        } else {
+            console.warn('Authentication failed');
+            errorMsg.textContent = '⚠️ Senha incorreta. Verifique e tente novamente.';
+            errorMsg.classList.add('visible');
+            input.focus();
+            input.select();
+        }
+    });
+
+    // Lock button resets auth
+    if (btnLock) {
+        btnLock.addEventListener('click', () => {
+            localStorage.removeItem(AUTH_STORAGE_KEY);
+            localStorage.removeItem(ROLE_STORAGE_KEY);
+            sessionStorage.removeItem(AUTH_STORAGE_KEY);
+            sessionStorage.removeItem(ROLE_STORAGE_KEY);
+            overlay.classList.remove('hidden');
+            if (errorMsg) errorMsg.classList.remove('visible');
+            input.value = '';
+            setTimeout(() => input.focus(), 200);
+        });
+    }
+}
+
     const overlay = document.getElementById('auth-modal-overlay');
     const form = document.getElementById('auth-form');
     const input = document.getElementById('auth-password-input');
