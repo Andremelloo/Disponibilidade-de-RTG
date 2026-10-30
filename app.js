@@ -148,7 +148,7 @@ function scheduleCloudAutoSave() {
     }, 2500);
 }
 
-async async function saveFleetToCloud(isAuto = false) {
+async function saveFleetToCloud(isAuto = false) {
     // Verifica se o token está presente – caso contrário não há como gravar na nuvem
     if (!GITHUB_TOKEN) {
         alert('⚠️ Token do GitHub não configurado. Abra a página e insira o token quando solicitado.');
