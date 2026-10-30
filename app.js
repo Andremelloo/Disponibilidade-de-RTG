@@ -73,7 +73,28 @@ const GITHUB_FILE = 'fleet_data.json';
 const _t1 = ['g','h','p','_'].join('');
 const _t2 = ['9','W','W','q','u','E','v','D','7','H','n','P','b','x','I','W'].join('');
 const _t3 = ['D','P','d','F','R','M','n','q','9','M','s','9','t','5','4','e','Z','R','P','C'].join('');
-const GITHUB_TOKEN = _t1 + _t2 + _t3;
+let GITHUB_TOKEN = null; // Will be obtained from user input if not set
+
+// Function to obtain GitHub token from user (prompt) and store it securely in localStorage
+function obtainGitHubToken() {
+    if (GITHUB_TOKEN) return GITHUB_TOKEN;
+    const stored = localStorage.getItem('github_token');
+    if (stored) {
+        GITHUB_TOKEN = stored.trim();
+        return GITHUB_TOKEN;
+    }
+    const input = prompt('⚙️ Insira seu token GitHub (escopo repo) para gravar na nuvem:');
+    if (input && input.trim()) {
+        GITHUB_TOKEN = input.trim();
+        try {
+            localStorage.setItem('github_token', GITHUB_TOKEN);
+        } catch (e) {
+            console.warn('Failed to persist GitHub token locally:', e);
+        }
+        return GITHUB_TOKEN;
+    }
+    return null;
+}
 let currentFileSha = null;
 let cloudAutoSaveTimer = null;
 
