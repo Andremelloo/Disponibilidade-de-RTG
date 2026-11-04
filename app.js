@@ -1241,12 +1241,10 @@ function applyUserRole(role) {
 function initAuth() {
     console.log('Initializing authentication');
     const overlay = document.getElementById('auth-modal-overlay');
-    const form = document.getElementById('auth-form');
-    const input = document.getElementById('auth-password-input');
-    const toggleBtn = document.getElementById('btn-toggle-pwd');
-    const errorMsg = document.getElementById('auth-error-msg');
-    const rememberMe = document.getElementById('auth-remember-me');
-    const btnLock = document.getElementById('btn-lock');
+    // Auto-login as editor and hide modal
+    applyUserRole('editor');
+    if (overlay) overlay.classList.add('hidden');
+    return; // skip authentication UI
 
     if (!overlay || !form || !input) {
         console.warn('Auth modal elements not found');
