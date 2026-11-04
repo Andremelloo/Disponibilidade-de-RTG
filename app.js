@@ -1331,13 +1331,6 @@ function initAuth() {
     }
 }
 
-    const overlay = document.getElementById('auth-modal-overlay');
-    const form = document.getElementById('auth-form');
-    const input = document.getElementById('auth-password-input');
-    const toggleBtn = document.getElementById('btn-toggle-pwd');
-    const errorMsg = document.getElementById('auth-error-msg');
-    const rememberMe = document.getElementById('auth-remember-me');
-    const btnLock = document.getElementById('btn-lock');
 
     if (!overlay || !form || !input) return;
 
