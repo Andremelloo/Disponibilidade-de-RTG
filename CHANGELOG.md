@@ -5,6 +5,17 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [v1.0.2] - 2026-11-05
+### 🔓 Acesso Direto & Correção de Sintaxe
+- **Desbloqueio de Acesso**: Removida a barreira do modal de senha. O sistema agora inicializa automaticamente com perfil de Edição (`editor`), concedendo acesso direto a todas as funcionalidades do dashboard.
+- **Ocultação do Modal no HTML**: O container `#auth-modal-overlay` em `index.html` foi definido com a classe `hidden` e `display: none !important;`.
+- **Eliminação de Erros de Sintaxe**:
+  - Removido fragmento duplicado e corrompido do manipulador de reset (`btnReset`) que causava o erro `Unexpected token '}'` na linha 602.
+  - Removido bloco duplicado de autenticação no final de `app.js`.
+  - Verificação e garantia de 100% de integridade estrutural do arquivo JavaScript (balanceamento de chaves e parênteses).
+
+---
+
 ## [v1.0.1] - 2026-09-24
 ### 🔒 Segurança & Acesso Restrito
 - **Ocultação de Senhas na Interface**: Removidas todas as senhas em texto puro visíveis no modal de login de "Acesso Restrito".

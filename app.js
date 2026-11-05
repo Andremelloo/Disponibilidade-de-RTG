@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Simulador Preditivo de Disponibilidade e Confiabilidade por Equipamento
  * Engenharia de Manutenção & Gestão de Ativos
  * Frota Oficial de 41 RTGs:
@@ -518,33 +518,6 @@ btnReset.addEventListener('click', async () => {
         alert('⚠️ Modo Leitura: o reset foi aplicado apenas localmente. Use a senha de edição (5550333) para gravar na nuvem.');
     }
 });
-        const confirmed = confirm("Deseja realmente restaurar todos os dados para o padrão original da fábrica?\n(41 RTGs, 31 dias, dia 15, meta 87.5%, paradas previstas 0h)");
-        if (!confirmed) return;
-
-        try {
-            localStorage.removeItem(STORAGE_KEY);
-            sessionStorage.removeItem(STORAGE_KEY);
-        } catch (e) {}
-
-        currentDay = 15;
-        monthDays = 31;
-        globalTarget = 0.875;
-        selectedEquipForChart = "ALL";
-        nextId = 42;
-        equipmentList = generateDefault41RTGs();
-
-        inputCurrentDay.max = 31;
-        inputCurrentDay.value = 15;
-        selectMonthDays.value = "31";
-        displayCurrentDay.textContent = "Dia 15 de 31";
-        displayMonthDays.textContent = "31 Dias (744h)";
-        document.getElementById('kpi-title-month-end').textContent = "Previsão Fechamento (Dia 31 - 744h)";
-
-        applyGlobalTargetToUI(globalTarget);
-        updateSelectOptions();
-        recalculateAndRender();
-        saveFleetToCloud(false);
-    });
 
     btnCopySummary.addEventListener('click', copySummaryToClipboard);
 
@@ -1239,171 +1212,11 @@ function applyUserRole(role) {
 }
 
 function initAuth() {
-    console.log('Initializing authentication');
+    console.log('Authentication bypassed - Direct Access mode enabled.');
     const overlay = document.getElementById('auth-modal-overlay');
-    // Auto-login as editor and hide modal
+    if (overlay) {
+        overlay.classList.add('hidden');
+        overlay.style.display = 'none';
+    }
     applyUserRole('editor');
-    if (overlay) overlay.classList.add('hidden');
-    return; // skip authentication UI
-
-    if (!overlay || !form || !input) {
-        console.warn('Auth modal elements not found');
-        return;
-    }
-
-    // Retrieve saved role / token
-    const savedRole = localStorage.getItem(ROLE_STORAGE_KEY) || sessionStorage.getItem(ROLE_STORAGE_KEY);
-    const isAuthLocal = localStorage.getItem(AUTH_STORAGE_KEY) === 'authenticated';
-    const isAuthSession = sessionStorage.getItem(AUTH_STORAGE_KEY) === 'authenticated';
-    console.log('Saved role:', savedRole, 'AuthLocal:', isAuthLocal, 'AuthSession:', isAuthSession);
-
-    if ((isAuthLocal || isAuthSession) && savedRole) {
-        applyUserRole(savedRole);
-        overlay.classList.add('hidden');
-    } else {
-        overlay.classList.remove('hidden');
-        setTimeout(() => input.focus(), 250);
-    }
-
-    // Toggle password visibility
-    if (toggleBtn) {
-        toggleBtn.addEventListener('click', () => {
-            const isPassword = input.type === 'password';
-            input.type = isPassword ? 'text' : 'password';
-            toggleBtn.textContent = isPassword ? '👁️' : '🙈';
-        });
-    }
-
-    // Form submission handling
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const enteredRaw = (input.value || '').trim();
-        const entered = enteredRaw.replace(/\s+/g, ''); // remove any spaces
-        console.log('Password entered:', entered);
-
-        let determinedRole = null;
-        // Accept numeric editor password even if entered as number
-        if (PASSWORDS_EDITOR.includes(entered) || PASSWORDS_EDITOR.includes(String(parseInt(entered, 10)))) {
-            determinedRole = 'editor';
-        } else if (PASSWORDS_VIEWER.some(p => p.toLowerCase() === entered.toLowerCase())) {
-            determinedRole = 'viewer';
-        }
-
-        if (determinedRole) {
-            console.log('Authentication success, role:', determinedRole);
-            errorMsg.classList.remove('visible');
-            errorMsg.textContent = '';
-            applyUserRole(determinedRole);
-
-            if (rememberMe && rememberMe.checked) {
-                localStorage.setItem(AUTH_STORAGE_KEY, 'authenticated');
-                localStorage.setItem(ROLE_STORAGE_KEY, determinedRole);
-            } else {
-                sessionStorage.setItem(AUTH_STORAGE_KEY, 'authenticated');
-                sessionStorage.setItem(ROLE_STORAGE_KEY, determinedRole);
-            }
-            overlay.classList.add('hidden');
-            input.value = '';
-            recalculateAndRender();
-        } else {
-            console.warn('Authentication failed');
-            errorMsg.textContent = '⚠️ Senha incorreta. Verifique e tente novamente.';
-            errorMsg.classList.add('visible');
-            input.focus();
-            input.select();
-        }
-    });
-
-    // Lock button resets auth
-    if (btnLock) {
-        btnLock.addEventListener('click', () => {
-            localStorage.removeItem(AUTH_STORAGE_KEY);
-            localStorage.removeItem(ROLE_STORAGE_KEY);
-            sessionStorage.removeItem(AUTH_STORAGE_KEY);
-            sessionStorage.removeItem(ROLE_STORAGE_KEY);
-            overlay.classList.remove('hidden');
-            if (errorMsg) errorMsg.classList.remove('visible');
-            input.value = '';
-            setTimeout(() => input.focus(), 200);
-        });
-    }
 }
-
-
-/* Duplicate auth block removed */
-
-    // Recupera perfil e token salvo
-    const savedRole = localStorage.getItem(ROLE_STORAGE_KEY) || sessionStorage.getItem(ROLE_STORAGE_KEY);
-    const isAuthLocal = localStorage.getItem(AUTH_STORAGE_KEY) === 'authenticated';
-    const isAuthSession = sessionStorage.getItem(AUTH_STORAGE_KEY) === 'authenticated';
-
-    if ((isAuthLocal || isAuthSession) && savedRole) {
-        applyUserRole(savedRole);
-        overlay.classList.add('hidden');
-    } else {
-        overlay.classList.remove('hidden');
-        setTimeout(() => input.focus(), 250);
-    }
-
-    // Toggle de visualização da senha
-    if (toggleBtn) {
-        toggleBtn.addEventListener('click', () => {
-            const isPassword = input.type === 'password';
-            input.type = isPassword ? 'text' : 'password';
-            toggleBtn.textContent = isPassword ? '🔒' : '👁️';
-        });
-    }
-
-    // Submissão do formulário de autenticação
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const entered = (input.value || '').trim();
-
-        let determinedRole = null;
-
-        if (PASSWORDS_EDITOR.includes(entered)) {
-            determinedRole = 'editor';
-        } else if (PASSWORDS_VIEWER.some(p => p.toLowerCase() === entered.toLowerCase())) {
-            determinedRole = 'viewer';
-        }
-
-        if (determinedRole) {
-            errorMsg.classList.remove('visible');
-            errorMsg.textContent = '';
-            
-            applyUserRole(determinedRole);
-
-            if (rememberMe && rememberMe.checked) {
-                localStorage.setItem(AUTH_STORAGE_KEY, 'authenticated');
-                localStorage.setItem(ROLE_STORAGE_KEY, determinedRole);
-            } else {
-                sessionStorage.setItem(AUTH_STORAGE_KEY, 'authenticated');
-                sessionStorage.setItem(ROLE_STORAGE_KEY, determinedRole);
-            }
-
-            overlay.classList.add('hidden');
-            input.value = '';
-            recalculateAndRender();
-        } else {
-            errorMsg.textContent = '❌ Senha incorreta. Verifique e tente novamente.';
-            errorMsg.classList.add('visible');
-            input.focus();
-            input.select();
-        }
-    });
-
-    // Botão de Bloquear na barra superior
-    if (btnLock) {
-        btnLock.addEventListener('click', () => {
-            localStorage.removeItem(AUTH_STORAGE_KEY);
-            localStorage.removeItem(ROLE_STORAGE_KEY);
-            sessionStorage.removeItem(AUTH_STORAGE_KEY);
-            sessionStorage.removeItem(ROLE_STORAGE_KEY);
-            overlay.classList.remove('hidden');
-            if (errorMsg) errorMsg.classList.remove('visible');
-            input.value = '';
-            setTimeout(() => input.focus(), 200);
-        });
-    }
-}
-
