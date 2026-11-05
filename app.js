@@ -1330,7 +1330,7 @@ function initAuth() {
 }
 
 
-    if (!overlay || !form || !input) return;
+/* Duplicate auth block removed */
 
     // Recupera perfil e token salvo
     const savedRole = localStorage.getItem(ROLE_STORAGE_KEY) || sessionStorage.getItem(ROLE_STORAGE_KEY);
