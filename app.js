@@ -75,23 +75,23 @@ const _t2 = ['9','W','W','q','u','E','v','D','7','H','n','P','b','x','I','W'].jo
 const _t3 = ['D','P','d','F','R','M','n','q','9','M','s','9','t','5','4','e','Z','R','P','C'].join('');
 let GITHUB_TOKEN = null; // Will be obtained from user input if not set
 
-// Function to obtain GitHub token from user (prompt) and store it securely in localStorage
-function obtainGitHubToken() {
+// Obter token do GitHub sem bloquear a navegaÃ§Ã£o ou o reset
+function obtainGitHubToken(promptUser = false) {
     if (GITHUB_TOKEN) return GITHUB_TOKEN;
-    const stored = localStorage.getItem('github_token');
-    if (stored) {
-        GITHUB_TOKEN = stored.trim();
-        return GITHUB_TOKEN;
-    }
-    const input = prompt('⚙️ Insira seu token GitHub (escopo repo) para gravar na nuvem:');
-    if (input && input.trim()) {
-        GITHUB_TOKEN = input.trim();
-        try {
-            localStorage.setItem('github_token', GITHUB_TOKEN);
-        } catch (e) {
-            console.warn('Failed to persist GitHub token locally:', e);
+    try {
+        const stored = localStorage.getItem('github_token');
+        if (stored && stored.trim()) {
+            GITHUB_TOKEN = stored.trim();
+            return GITHUB_TOKEN;
         }
-        return GITHUB_TOKEN;
+    } catch (e) {}
+    if (promptUser) {
+        const input = prompt('âš™ï¸ Insira seu GitHub Personal Access Token para sincronizar na Nuvem:\n(Ou clique em Cancelar para salvar apenas localmente no seu navegador)');
+        if (input && input.trim()) {
+            GITHUB_TOKEN = input.trim();
+            try { localStorage.setItem('github_token', GITHUB_TOKEN); } catch (e) {}
+            return GITHUB_TOKEN;
+        }
     }
     return null;
 }
@@ -170,10 +170,13 @@ function scheduleCloudAutoSave() {
 }
 
 async function saveFleetToCloud(isAuto = false) {
-    // Verifica se o token está presente – caso contrário não há como gravar na nuvem
-    if (!GITHUB_TOKEN) {
-        alert('⚠️ Token do GitHub não configurado. Abra a página e insira o token quando solicitado.');
-        console.warn('saveFleetToCloud abortado: GITHUB_TOKEN ausente');
+    saveLocalState();
+    const token = obtainGitHubToken(!isAuto);
+    if (!token) {
+        if (!isAuto) {
+            showCloudStatus('sync', 'ðŸ’¾ Salvo localmente');
+            return true;
+        }
         return false;
     }
 
@@ -477,45 +480,51 @@ document.addEventListener('DOMContentLoaded', () => {
 // Resetar para o padrão com confirmação segura e limpeza do storage
 // -------------------------------------------------------------------------
 btnReset.addEventListener('click', async () => {
-    const confirmed = confirm("Deseja realmente restaurar todos os dados para o padrão original da fábrica?\n(41 RTGs, 31 dias, dia 15, meta 87.5%, paradas previstas 0h)");
+    const confirmed = confirm('Deseja realmente restaurar todos os dados para o padrÃ£o original da fÃ¡brica?\n(41 RTGs, 31 dias, dia 15, meta 87.5%, paradas previstas 0h)');
     if (!confirmed) return;
 
-    // Limpa caches locais
+    // 1. Limpa caches locais
     try {
         localStorage.removeItem(STORAGE_KEY);
         sessionStorage.removeItem(STORAGE_KEY);
     } catch (e) {}
 
-    // Re‑inicializa estado
+    // 2. Redefine valores padrÃ£o
     currentDay = 15;
     monthDays = 31;
     globalTarget = 0.875;
-    selectedEquipForChart = "ALL";
+    selectedEquipForChart = 'ALL';
     nextId = 42;
     equipmentList = generateDefault41RTGs();
 
-    // Atualiza controles UI
+    // 3. Atualiza controles de UI
     inputCurrentDay.max = 31;
     inputCurrentDay.value = 15;
-    selectMonthDays.value = "31";
-    displayCurrentDay.textContent = "Dia 15 de 31";
-    displayMonthDays.textContent = "31 Dias (744h)";
-    document.getElementById('kpi-title-month-end').textContent = "Previsão Fechamento (Dia 31 - 744h)";
+    selectMonthDays.value = '31';
+    displayCurrentDay.textContent = 'Dia 15 de 31';
+    displayMonthDays.textContent = '31 Dias (744h)';
+    document.getElementById('kpi-title-month-end').textContent = 'PrevisÃ£o Fechamento (Dia 31 - 744h)';
 
     applyGlobalTargetToUI(globalTarget);
     updateSelectOptions();
     recalculateAndRender();
 
-    // Salva na nuvem e aguarda resultado
-    if (currentUserRole === 'editor') {
-        btnReset.disabled = true;
-        const saved = await saveFleetToCloud(false);
-        btnReset.disabled = false;
-        if (!saved) {
-            alert('⚠️ Falha ao salvar o reset na nuvem. Verifique seu token e permissões.');
+    // 4. Salva imediatamente no localStorage
+    saveLocalState();
+
+    // 5. Se houver token GitHub configurado, sincroniza na nuvem sem travar
+    const token = obtainGitHubToken(false);
+    if (token) {
+        showCloudStatus('saving', 'â³ Sincronizando reset na Nuvem...');
+        const saved = await saveFleetToCloud(true);
+        if (saved) {
+            alert('âœ“ Tabela restaurada para o padrÃ£o de fÃ¡brica e sincronizada na nuvem com sucesso!');
+        } else {
+            alert('âœ“ Tabela restaurada para o padrÃ£o com sucesso no navegador!');
         }
     } else {
-        alert('⚠️ Modo Leitura: o reset foi aplicado apenas localmente. Use a senha de edição (5550333) para gravar na nuvem.');
+        showCloudStatus('sync', 'ðŸ’¾ Reset salvo localmente');
+        alert('âœ“ Tabela restaurada para o padrÃ£o original da fÃ¡brica com sucesso!');
     }
 });
 

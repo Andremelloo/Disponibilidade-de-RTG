@@ -5,6 +5,14 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [v1.0.3] - 2026-11-05
+### 🔄 Desacoplamento de Nuvem & Reset Instantâneo
+- **Correção do Botão "Resetar"**: O reset agora restaura a tabela para os 41 RTGs, dia 15, 31 dias e meta 87.5% de forma 100% imediata e local, salvando diretamente no `localStorage`.
+- **Eliminação do Bloqueio por Token GitHub**: O alerta impeditivo `"Token do GitHub não configurado"` foi removido do fluxo de reset. Se o usuário não possuir token configurado, a aplicação salva e restaura localmente sem interromper a navegação.
+- **Salvamento Resiliente**: Caso o usuário queira salvar na nuvem compartilhada e não tenha token informado, é exibido prompt amigável e opcional sem bloquear o salvamento local.
+
+---
+
 ## [v1.0.2] - 2026-11-05
 ### 🔓 Acesso Direto & Correção de Sintaxe
 - **Desbloqueio de Acesso**: Removida a barreira do modal de senha. O sistema agora inicializa automaticamente com perfil de Edição (`editor`), concedendo acesso direto a todas as funcionalidades do dashboard.
