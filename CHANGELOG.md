@@ -5,6 +5,14 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [v1.0.4] - 2026-11-06
+### 🛡️ Persistência Pós-Reset & Resolução de Sobrescrita no F5
+- **Prevenção de Sobrescrita pelo GitHub**: Corrigido o fluxo de carregamento da nuvem em `loadFleetFromCloud`. Anteriormente, ao dar `F5`, a aplicação baixava os dados remotos antigos do arquivo `fleet_data.json` do GitHub e sobrescrevia cegamente o reset que o usuário acabara de aplicar.
+- **Comparação Inteligente de Timestamp**: A função de carregamento agora compara os timestamps (data/hora da última alteração). Se o estado local no navegador for mais recente que o arquivo da nuvem (como ocorre logo após um reset), o reset local é preservado e mantido.
+- **Sincronização Contínua**: O botão "Salvar na Nuvem" continua operacional para quando o usuário desejar enviar seu novo estado resetado/editado para o repositório compartilhado.
+
+---
+
 ## [v1.0.3] - 2026-11-05
 ### 🔄 Desacoplamento de Nuvem & Reset Instantâneo
 - **Correção do Botão "Resetar"**: O reset agora restaura a tabela para os 41 RTGs, dia 15, 31 dias e meta 87.5% de forma 100% imediata e local, salvando diretamente no `localStorage`.

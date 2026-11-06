@@ -285,7 +285,22 @@ async function loadFleetFromCloud(showAlert = false) {
             currentFileSha = data.sha;
             const decodedJson = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
             const state = JSON.parse(decodedJson);
-            applyState(state);
+            
+            // Verifica se o estado local Ã© mais recente que o da nuvem
+            let localTime = 0;
+            try {
+                const localRaw = localStorage.getItem(STORAGE_KEY);
+                if (localRaw) {
+                    const localState = JSON.parse(localRaw);
+                    localTime = localState.timestamp || (localState.updatedAt ? new Date(localState.updatedAt).getTime() : 0);
+                }
+            } catch (err) {}
+
+            const cloudTime = state.timestamp || (state.updatedAt ? new Date(state.updatedAt).getTime() : 0);
+            if (!localTime || cloudTime > localTime) {
+                applyState(state);
+                saveLocalState();
+            }
             loaded = true;
         }
     } catch (e) {
@@ -298,7 +313,20 @@ async function loadFleetFromCloud(showAlert = false) {
             const rawRes = await fetch(`https://raw.githubusercontent.com/${GITHUB_REPO}/main/${GITHUB_FILE}?t=${Date.now()}`);
             if (rawRes.ok) {
                 const state = await rawRes.json();
-                applyState(state);
+                let localTime = 0;
+                try {
+                    const localRaw = localStorage.getItem(STORAGE_KEY);
+                    if (localRaw) {
+                        const localState = JSON.parse(localRaw);
+                        localTime = localState.timestamp || (localState.updatedAt ? new Date(localState.updatedAt).getTime() : 0);
+                    }
+                } catch (err) {}
+
+                const cloudTime = state.timestamp || (state.updatedAt ? new Date(state.updatedAt).getTime() : 0);
+                if (!localTime || cloudTime > localTime) {
+                    applyState(state);
+                    saveLocalState();
+                }
                 loaded = true;
             }
         } catch (e) {
