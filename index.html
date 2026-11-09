@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
@@ -33,7 +33,7 @@
                     <div class="brand-title-row">
                         <h1 class="brand-title">Estratégia & Disponibilidade por Equipamento</h1>
                         <span class="badge-version" id="app-version-badge"
-                            title="Versão Oficial do Sistema">v1.0.4</span>
+                            title="Versão Oficial do Sistema">v1.0.5</span>
                     </div>
                     <p class="brand-subtitle">Simulador Preditivo Sequencial (D+1 a D+10) & Fechamento Mensal (Frota
                         Oficial de 41 RTGs)</p>
@@ -61,6 +61,13 @@
                         <polyline points="7 3 7 8 15 8"></polyline>
                     </svg>
                     Salvar na Nuvem
+                </button>
+                <button class="btn-refresh" id="btn-token-config" title="Configurar Token GitHub para sincronizar na Nuvem">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                    Token Nuvem
                 </button>
                 <button class="btn-refresh" id="btn-reload-cloud" title="Recarregar dados mais recentes da nuvem">
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
@@ -95,7 +102,7 @@
         </header>
 
         <!-- Modal de Autenticação / Bloqueio por Senha -->
-        <div id="auth-modal-overlay" class="auth-overlay hidden" style="display: none !important;">
+        <div id="auth-modal-overlay" class="auth-overlay">
             <div class="auth-modal-card">
                 <div class="auth-icon-badge">
                     <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
@@ -141,6 +148,57 @@
                             <span><strong>Perfil Leitura:</strong> Visualização e acompanhamento de indicadores da
                                 frota</span>
                         </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        
+        <!-- Modal de Configuração do Token GitHub (Nuvem) -->
+        <div id="token-modal-overlay" class="auth-overlay hidden" style="display: none;">
+            <div class="auth-modal-card">
+                <div class="auth-icon-badge" style="background: rgba(14, 165, 233, 0.15); border-color: rgba(14, 165, 233, 0.3); color: #38bdf8;">
+                    <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                </div>
+                <h2 class="auth-title">Conexão com a Nuvem (GitHub)</h2>
+                <p class="auth-subtitle">Necessário apenas para quem edita os dados e deseja sincronizar com toda a equipe.</p>
+
+                <div id="token-status-indicator" style="margin-bottom: 15px; font-size: 0.85rem; padding: 10px 14px; border-radius: 8px; background: rgba(255,255,255,0.05); text-align: center; border: 1px solid rgba(255,255,255,0.1);">
+                    Status: <strong id="token-status-text" style="color: #f59e0b;">Não configurado</strong>
+                </div>
+
+                <form id="token-form" class="auth-form" onsubmit="return false;">
+                    <div class="auth-input-wrapper">
+                        <input type="password" id="token-input" class="auth-input"
+                            placeholder="Cole seu GitHub Token (ex: ghp_...)" autocomplete="off">
+                        <button type="button" id="btn-toggle-token-pwd" class="btn-pwd-eye" title="Mostrar/Ocultar Token">
+                            👁️
+                        </button>
+                    </div>
+                    <div id="token-error-msg" class="auth-error-msg"></div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button type="button" id="btn-save-token" class="btn-auth-submit" style="flex: 2; margin-top: 0;">
+                            <span>Salvar e Conectar</span>
+                        </button>
+                        <button type="button" id="btn-clear-token" class="btn-refresh" style="flex: 1; justify-content: center; background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3);">
+                            <span>Remover</span>
+                        </button>
+                    </div>
+                    <button type="button" id="btn-close-token-modal" class="btn-refresh" style="margin-top: 10px; width: 100%; justify-content: center; background: transparent; border-color: rgba(255,255,255,0.1);">
+                        Fechar Janela
+                    </button>
+                    
+                    <div class="auth-roles-info" style="margin-top: 15px; font-size: 0.78rem; color: #94a3b8; line-height: 1.4; text-align: left;">
+                        <p style="margin: 0 0 6px 0;"><strong>Como gerar o token:</strong></p>
+                        <ol style="margin: 0; padding-left: 18px;">
+                            <li>No GitHub, acesse <em>Settings &gt; Developer settings &gt; Personal access tokens &gt; Tokens (classic)</em>.</li>
+                            <li>Gere um token com o escopo <strong>repo</strong> selecionado.</li>
+                            <li>Cole o token acima. Ele será armazenado no seu navegador para sincronizar todas as suas alterações na nuvem.</li>
+                        </ol>
                     </div>
                 </form>
             </div>
@@ -393,3 +451,4 @@
 </body>
 
 </html>
+

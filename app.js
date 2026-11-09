@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Simulador Preditivo de Disponibilidade e Confiabilidade por Equipamento
  * Engenharia de Manutenção & Gestão de Ativos
  * Frota Oficial de 41 RTGs:
@@ -70,14 +70,21 @@ let forecastChart = null;
 
 const GITHUB_REPO = 'Andremelloo/Disponibilidade-de-RTG';
 const GITHUB_FILE = 'fleet_data.json';
-const _t1 = ['g','h','p','_'].join('');
-const _t2 = ['9','W','W','q','u','E','v','D','7','H','n','P','b','x','I','W'].join('');
-const _t3 = ['D','P','d','F','R','M','n','q','9','M','s','9','t','5','4','e','Z','R','P','C'].join('');
-let GITHUB_TOKEN = null; // Will be obtained from user input if not set
+let GITHUB_TOKEN = null;
+try {
+    const _stored = localStorage.getItem('github_token');
+    if (_stored && _stored.trim()) GITHUB_TOKEN = _stored.trim();
+} catch (e) {}
 
-// Obter token do GitHub sem bloquear a navegaÃ§Ã£o ou o reset
+let currentFileSha = null;
+let lastAppliedCloudSha = null;
+let lastAppliedCloudTime = 0;
+let isSyncing = false;
+let cloudAutoSaveTimer = null;
+
+// Obter token do GitHub
 function obtainGitHubToken(promptUser = false) {
-    if (GITHUB_TOKEN) return GITHUB_TOKEN;
+    if (GITHUB_TOKEN && GITHUB_TOKEN.trim()) return GITHUB_TOKEN.trim();
     try {
         const stored = localStorage.getItem('github_token');
         if (stored && stored.trim()) {
@@ -85,18 +92,11 @@ function obtainGitHubToken(promptUser = false) {
             return GITHUB_TOKEN;
         }
     } catch (e) {}
-    if (promptUser) {
-        const input = prompt('âš™ï¸ Insira seu GitHub Personal Access Token para sincronizar na Nuvem:\n(Ou clique em Cancelar para salvar apenas localmente no seu navegador)');
-        if (input && input.trim()) {
-            GITHUB_TOKEN = input.trim();
-            try { localStorage.setItem('github_token', GITHUB_TOKEN); } catch (e) {}
-            return GITHUB_TOKEN;
-        }
+    if (promptUser && typeof window.openTokenModal === 'function') {
+        window.openTokenModal();
     }
     return null;
 }
-let currentFileSha = null;
-let cloudAutoSaveTimer = null;
 
 const STORAGE_KEY = 'simulador_rtg_estado_v1';
 let saveIndicatorTimer = null;
@@ -171,26 +171,30 @@ function scheduleCloudAutoSave() {
 
 async function saveFleetToCloud(isAuto = false) {
     saveLocalState();
-    const token = obtainGitHubToken(!isAuto);
-    if (!token) {
-        if (!isAuto) {
-            showCloudStatus('sync', 'ðŸ’¾ Salvo localmente');
-            return true;
-        }
-        return false;
-    }
 
     if (currentUserRole !== 'editor') {
         if (!isAuto) alert('⚠️ Modo Leitura: Você precisa acessar com a senha de Edição (5550333) para salvar alterações na nuvem.');
         return false;
     }
+
+    const token = obtainGitHubToken(!isAuto);
+    if (!token) {
+        if (!isAuto) {
+            showCloudStatus('sync', '💾 Salvo localmente');
+            if (typeof window.openTokenModal === 'function') {
+                window.openTokenModal();
+            }
+        }
+        return false;
+    }
+
     showCloudStatus('saving', isAuto ? '⏳ Salvando na Nuvem...' : '⏳ Gravando no GitHub...');
-    saveLocalState();
 
     try {
         const payload = {
             version: '2.0',
             updatedAt: new Date().toISOString(),
+            timestamp: Date.now(),
             currentDay,
             monthDays,
             globalTarget,
@@ -209,15 +213,13 @@ async function saveFleetToCloud(isAuto = false) {
         };
 
         const jsonStr = JSON.stringify(payload, null, 2);
-        // Base64 UTF-8 encoding segura
         const contentBase64 = btoa(unescape(encodeURIComponent(jsonStr)));
 
-        // Se ainda não temos o SHA mais recente, busca antes de gravar
         if (!currentFileSha) {
             try {
                 const getRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE}?t=${Date.now()}`, {
                     headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Authorization': `token ${token}`,
                         'Accept': 'application/vnd.github+json'
                     }
                 });
@@ -237,7 +239,7 @@ async function saveFleetToCloud(isAuto = false) {
         const putRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE}`, {
             method: 'PUT',
             headers: {
-                'Authorization': `token ${GITHUB_TOKEN}`,
+                'Authorization': `token ${token}`,
                 'Accept': 'application/vnd.github+json',
                 'Content-Type': 'application/json'
             },
@@ -247,15 +249,22 @@ async function saveFleetToCloud(isAuto = false) {
         if (putRes.ok) {
             const putData = await putRes.json();
             currentFileSha = putData.content ? putData.content.sha : null;
+            lastAppliedCloudSha = currentFileSha;
+            lastAppliedCloudTime = Date.now();
             showCloudStatus('success', '☁️ Salvo na Nuvem (compartilhado!)');
             setTimeout(() => showCloudStatus('sync', '☁️ Nuvem sincronizada'), 3500);
             return true;
-        } else {
-            // Se houve conflito de SHA (outro usuário salvou), busca o SHA novo e tenta novamente
-            if (putRes.status === 409) {
-                currentFileSha = null;
-                return await saveFleetToCloud(false);
+        } else if (putRes.status === 409) {
+            currentFileSha = null;
+            return await saveFleetToCloud(isAuto);
+        } else if (putRes.status === 401 || putRes.status === 403) {
+            console.warn('Erro de autenticação no GitHub:', await putRes.text());
+            showCloudStatus('error', '⚠️ Token GitHub Inválido');
+            if (!isAuto && typeof window.openTokenModal === 'function') {
+                window.openTokenModal();
             }
+            return false;
+        } else {
             console.warn('Erro na resposta da API GitHub:', await putRes.text());
             showCloudStatus('error', '⚠️ Salvo localmente');
             return false;
@@ -267,66 +276,56 @@ async function saveFleetToCloud(isAuto = false) {
     }
 }
 
-async function loadFleetFromCloud(showAlert = false) {
-    showCloudStatus('saving', '⏳ Carregando da Nuvem...');
+async function loadFleetFromCloud(showAlert = false, force = false) {
+    if (isSyncing) return false;
+    isSyncing = true;
+    showCloudStatus('saving', '⏳ Verificando nuvem...');
     let loaded = false;
+    let remoteState = null;
+    let remoteSha = null;
 
     try {
-        // Tenta buscar via API do GitHub para pegar o SHA mais recente
+        const headers = {
+            'Accept': 'application/vnd.github+json'
+        };
+        const token = obtainGitHubToken(false);
+        if (token) {
+            headers['Authorization'] = `token ${token}`;
+        }
+
         const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE}?t=${Date.now()}`, {
-            headers: {
-                'Authorization': `token ${GITHUB_TOKEN}`,
-                'Accept': 'application/vnd.github+json'
-            }
+            headers
         });
 
         if (res.ok) {
             const data = await res.json();
-            currentFileSha = data.sha;
+            remoteSha = data.sha;
             const decodedJson = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
-            const state = JSON.parse(decodedJson);
-            
-            // Verifica se o estado local Ã© mais recente que o da nuvem
-            let localTime = 0;
-            try {
-                const localRaw = localStorage.getItem(STORAGE_KEY);
-                if (localRaw) {
-                    const localState = JSON.parse(localRaw);
-                    localTime = localState.timestamp || (localState.updatedAt ? new Date(localState.updatedAt).getTime() : 0);
-                }
-            } catch (err) {}
-
-            const cloudTime = state.timestamp || (state.updatedAt ? new Date(state.updatedAt).getTime() : 0);
-            if (!localTime || cloudTime > localTime) {
-                applyState(state);
-                saveLocalState();
-            }
+            remoteState = JSON.parse(decodedJson);
             loaded = true;
+        } else if (res.status === 401 || res.status === 403) {
+            const publicRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE}?t=${Date.now()}`, {
+                headers: { 'Accept': 'application/vnd.github+json' }
+            });
+            if (publicRes.ok) {
+                const pubData = await publicRes.json();
+                remoteSha = pubData.sha;
+                const decodedJson = decodeURIComponent(escape(atob(pubData.content.replace(/\s/g, ''))));
+                remoteState = JSON.parse(decodedJson);
+                loaded = true;
+            }
         }
     } catch (e) {
         console.warn('Tentando fallback raw GitHub...', e);
     }
 
-    // Fallback: tentar raw content do GitHub se API falhar
     if (!loaded) {
         try {
-            const rawRes = await fetch(`https://raw.githubusercontent.com/${GITHUB_REPO}/main/${GITHUB_FILE}?t=${Date.now()}`);
+            const rawRes = await fetch(`https://raw.githubusercontent.com/${GITHUB_REPO}/main/${GITHUB_FILE}?t=${Date.now()}`, {
+                cache: 'no-store'
+            });
             if (rawRes.ok) {
-                const state = await rawRes.json();
-                let localTime = 0;
-                try {
-                    const localRaw = localStorage.getItem(STORAGE_KEY);
-                    if (localRaw) {
-                        const localState = JSON.parse(localRaw);
-                        localTime = localState.timestamp || (localState.updatedAt ? new Date(localState.updatedAt).getTime() : 0);
-                    }
-                } catch (err) {}
-
-                const cloudTime = state.timestamp || (state.updatedAt ? new Date(state.updatedAt).getTime() : 0);
-                if (!localTime || cloudTime > localTime) {
-                    applyState(state);
-                    saveLocalState();
-                }
+                remoteState = await rawRes.json();
                 loaded = true;
             }
         } catch (e) {
@@ -334,16 +333,38 @@ async function loadFleetFromCloud(showAlert = false) {
         }
     }
 
-    if (loaded) {
-        showCloudStatus('success', '☁️ Nuvem sincronizada');
-        saveLocalState();
-        if (showAlert) {
-            alert('✓ Dados mais recentes recarregados com sucesso da nuvem!');
+    if (loaded && remoteState && Array.isArray(remoteState.equipmentList) && remoteState.equipmentList.length > 0) {
+        const cloudTime = remoteState.timestamp || (remoteState.updatedAt ? new Date(remoteState.updatedAt).getTime() : 0);
+
+        const shouldApply = force || 
+            (currentUserRole !== 'editor') || 
+            (remoteSha && remoteSha !== lastAppliedCloudSha) || 
+            (cloudTime > lastAppliedCloudTime);
+
+        if (shouldApply) {
+            currentFileSha = remoteSha || currentFileSha;
+            lastAppliedCloudSha = remoteSha || lastAppliedCloudSha;
+            lastAppliedCloudTime = cloudTime;
+            applyState(remoteState);
+            saveLocalState();
+            showCloudStatus('success', '☁️ Nuvem sincronizada');
+            if (showAlert) {
+                alert('✓ Dados mais recentes carregados com sucesso da nuvem!');
+            }
+            isSyncing = false;
+            return true;
+        } else {
+            showCloudStatus('sync', '☁️ Nuvem sincronizada');
+            isSyncing = false;
+            return false;
         }
     } else {
-        // Se estiver offline ou sem rede, usa o cache local
-        loadSavedState();
+        if (!lastAppliedCloudTime) {
+            loadSavedState();
+        }
         showCloudStatus('sync', '💾 Modo Local / Offline');
+        isSyncing = false;
+        return false;
     }
 }
 
@@ -405,6 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnLock = document.getElementById('btn-lock');
 
     initAuth();
+    initTokenModal();
     initChart();
 
     function applyGlobalTargetToUI(targetVal) {
@@ -508,53 +530,57 @@ document.addEventListener('DOMContentLoaded', () => {
 // Resetar para o padrão com confirmação segura e limpeza do storage
 // -------------------------------------------------------------------------
 btnReset.addEventListener('click', async () => {
-    const confirmed = confirm('Deseja realmente restaurar todos os dados para o padrÃ£o original da fÃ¡brica?\n(41 RTGs, 31 dias, dia 15, meta 87.5%, paradas previstas 0h)');
-    if (!confirmed) return;
+        const confirmed = confirm('Deseja realmente restaurar todos os dados para o padrão original da fábrica?\n(41 RTGs, 31 dias, dia 15, meta 87.5%, paradas previstas 0h)');
+        if (!confirmed) return;
 
-    // 1. Limpa caches locais
-    try {
-        localStorage.removeItem(STORAGE_KEY);
-        sessionStorage.removeItem(STORAGE_KEY);
-    } catch (e) {}
+        // 1. Limpa caches locais
+        try {
+            localStorage.removeItem(STORAGE_KEY);
+            sessionStorage.removeItem(STORAGE_KEY);
+        } catch (e) {}
 
-    // 2. Redefine valores padrÃ£o
-    currentDay = 15;
-    monthDays = 31;
-    globalTarget = 0.875;
-    selectedEquipForChart = 'ALL';
-    nextId = 42;
-    equipmentList = generateDefault41RTGs();
+        // 2. Redefine valores padrão
+        currentDay = 15;
+        monthDays = 31;
+        globalTarget = 0.875;
+        selectedEquipForChart = 'ALL';
+        nextId = 42;
+        equipmentList = generateDefault41RTGs();
 
-    // 3. Atualiza controles de UI
-    inputCurrentDay.max = 31;
-    inputCurrentDay.value = 15;
-    selectMonthDays.value = '31';
-    displayCurrentDay.textContent = 'Dia 15 de 31';
-    displayMonthDays.textContent = '31 Dias (744h)';
-    document.getElementById('kpi-title-month-end').textContent = 'PrevisÃ£o Fechamento (Dia 31 - 744h)';
+        // 3. Atualiza controles de UI
+        inputCurrentDay.max = 31;
+        inputCurrentDay.value = 15;
+        selectMonthDays.value = '31';
+        displayCurrentDay.textContent = 'Dia 15 de 31';
+        displayMonthDays.textContent = '31 Dias (744h)';
+        document.getElementById('kpi-title-month-end').textContent = 'Previsão Fechamento (Dia 31 - 744h)';
 
-    applyGlobalTargetToUI(globalTarget);
-    updateSelectOptions();
-    recalculateAndRender();
+        applyGlobalTargetToUI(globalTarget);
+        updateSelectOptions();
+        recalculateAndRender();
 
-    // 4. Salva imediatamente no localStorage
-    saveLocalState();
+        // 4. Salva imediatamente no localStorage
+        saveLocalState();
 
-    // 5. Se houver token GitHub configurado, sincroniza na nuvem sem travar
-    const token = obtainGitHubToken(false);
-    if (token) {
-        showCloudStatus('saving', 'â³ Sincronizando reset na Nuvem...');
-        const saved = await saveFleetToCloud(true);
-        if (saved) {
-            alert('âœ“ Tabela restaurada para o padrÃ£o de fÃ¡brica e sincronizada na nuvem com sucesso!');
+        // 5. Se for editor, sincroniza na nuvem
+        if (currentUserRole === 'editor') {
+            const token = obtainGitHubToken(false);
+            if (token) {
+                showCloudStatus('saving', '⏳ Sincronizando reset na Nuvem...');
+                const saved = await saveFleetToCloud(false);
+                if (saved) {
+                    alert('✓ Tabela restaurada para o padrão de fábrica e sincronizada na nuvem com sucesso!');
+                } else {
+                    alert('✓ Tabela restaurada para o padrão com sucesso no navegador!\n(Falha ao sincronizar na nuvem)');
+                }
+            } else {
+                showCloudStatus('sync', '💾 Reset salvo localmente');
+                alert('✓ Tabela restaurada para o padrão no seu navegador com sucesso!\n(Para sincronizar com toda a equipe, configure o Token Nuvem)');
+            }
         } else {
-            alert('âœ“ Tabela restaurada para o padrÃ£o com sucesso no navegador!');
+            alert('⚠️ Modo Leitura: o reset foi aplicado apenas na sua visualização local.');
         }
-    } else {
-        showCloudStatus('sync', 'ðŸ’¾ Reset salvo localmente');
-        alert('âœ“ Tabela restaurada para o padrÃ£o original da fÃ¡brica com sucesso!');
-    }
-});
+    });
 
     btnCopySummary.addEventListener('click', copySummaryToClipboard);
 
@@ -598,9 +624,20 @@ btnReset.addEventListener('click', async () => {
     syncControlsAndRender();
 
     // 2. Imediatamente consulta a Nuvem (GitHub) para sincronizar os dados mais recentes de outros usuários
-    loadFleetFromCloud(false).then(() => {
+    loadFleetFromCloud(false, true).then(() => {
         syncControlsAndRender();
     });
+
+    // Polling automático a cada 20 segundos para manter todos os computadores sincronizados em tempo real
+    setInterval(() => {
+        if (!cloudAutoSaveTimer) {
+            loadFleetFromCloud(false, false).then(applied => {
+                if (applied) {
+                    syncControlsAndRender();
+                }
+            });
+        }
+    }, 20000);
 
     // Salva instantaneamente caso a página/aba seja fechada
     window.addEventListener('beforeunload', () => {
@@ -1217,7 +1254,7 @@ function copySummaryToClipboard() {
    ========================================================================== */
 const AUTH_STORAGE_KEY = 'rtg_dashboard_auth_token_v1';
 
-// Senha de Edição (Permite alterar dados e gravar na nuvem)
+// Senha de Edição (Permite alterar dados, simular, resetar e salvar na nuvem)
 const PASSWORDS_EDITOR = ['5550333'];
 
 // Senha de Leitura (Apenas visualização do dashboard)
@@ -1249,11 +1286,242 @@ function applyUserRole(role) {
 }
 
 function initAuth() {
-    console.log('Authentication bypassed - Direct Access mode enabled.');
     const overlay = document.getElementById('auth-modal-overlay');
-    if (overlay) {
+    const form = document.getElementById('auth-form');
+    const input = document.getElementById('auth-password-input');
+    const toggleBtn = document.getElementById('btn-toggle-pwd');
+    const errorMsg = document.getElementById('auth-error-msg');
+    const rememberMe = document.getElementById('auth-remember-me');
+    const btnLock = document.getElementById('btn-lock');
+    const btnSubmit = document.getElementById('btn-submit-auth');
+
+    if (!overlay || !input) return;
+
+    // Recupera perfil e autenticação salva
+    const savedRole = localStorage.getItem(ROLE_STORAGE_KEY) || sessionStorage.getItem(ROLE_STORAGE_KEY);
+    const isAuthLocal = localStorage.getItem(AUTH_STORAGE_KEY) === 'authenticated';
+    const isAuthSession = sessionStorage.getItem(AUTH_STORAGE_KEY) === 'authenticated';
+
+    if ((isAuthLocal || isAuthSession) && savedRole) {
+        applyUserRole(savedRole);
         overlay.classList.add('hidden');
         overlay.style.display = 'none';
+    } else {
+        overlay.classList.remove('hidden');
+        overlay.style.display = 'flex';
+        setTimeout(() => input.focus(), 250);
     }
-    applyUserRole('editor');
+
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            toggleBtn.textContent = isPassword ? '🔒' : '👁️';
+        });
+    }
+
+    function handleAuthSubmit() {
+        const entered = (input.value || '').trim();
+        let determinedRole = null;
+
+        if (PASSWORDS_EDITOR.includes(entered)) {
+            determinedRole = 'editor';
+        } else if (PASSWORDS_VIEWER.some(p => p.toLowerCase() === entered.toLowerCase())) {
+            determinedRole = 'viewer';
+        }
+
+        if (determinedRole) {
+            if (errorMsg) {
+                errorMsg.classList.remove('visible');
+                errorMsg.textContent = '';
+            }
+
+            applyUserRole(determinedRole);
+
+            if (rememberMe && rememberMe.checked) {
+                localStorage.setItem(AUTH_STORAGE_KEY, 'authenticated');
+                localStorage.setItem(ROLE_STORAGE_KEY, determinedRole);
+            } else {
+                sessionStorage.setItem(AUTH_STORAGE_KEY, 'authenticated');
+                sessionStorage.setItem(ROLE_STORAGE_KEY, determinedRole);
+            }
+
+            overlay.classList.add('hidden');
+            overlay.style.display = 'none';
+            input.value = '';
+            recalculateAndRender();
+        } else {
+            if (errorMsg) {
+                errorMsg.textContent = '❌ Senha incorreta. Verifique e tente novamente.';
+                errorMsg.classList.add('visible');
+            }
+            input.focus();
+            input.select();
+        }
+    }
+
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleAuthSubmit();
+        });
+    }
+
+    if (btnSubmit) {
+        btnSubmit.addEventListener('click', (e) => {
+            e.preventDefault();
+            handleAuthSubmit();
+        });
+    }
+
+    if (btnLock) {
+        btnLock.addEventListener('click', () => {
+            localStorage.removeItem(AUTH_STORAGE_KEY);
+            localStorage.removeItem(ROLE_STORAGE_KEY);
+            sessionStorage.removeItem(AUTH_STORAGE_KEY);
+            sessionStorage.removeItem(ROLE_STORAGE_KEY);
+            overlay.classList.remove('hidden');
+            overlay.style.display = 'flex';
+            if (errorMsg) errorMsg.classList.remove('visible');
+            input.value = '';
+            setTimeout(() => input.focus(), 200);
+        });
+    }
+}
+
+function initTokenModal() {
+    const btnTokenConfig = document.getElementById('btn-token-config');
+    const overlay = document.getElementById('token-modal-overlay');
+    const input = document.getElementById('token-input');
+    const toggleBtn = document.getElementById('btn-toggle-token-pwd');
+    const btnSave = document.getElementById('btn-save-token');
+    const btnClear = document.getElementById('btn-clear-token');
+    const btnClose = document.getElementById('btn-close-token-modal');
+    const statusText = document.getElementById('token-status-text');
+    const errorMsg = document.getElementById('token-error-msg');
+
+    if (!overlay) return;
+
+    function updateTokenUI() {
+        const stored = localStorage.getItem('github_token');
+        if (stored && stored.trim()) {
+            GITHUB_TOKEN = stored.trim();
+            if (statusText) {
+                statusText.textContent = '✓ Configurado e Ativo';
+                statusText.style.color = '#10b981';
+            }
+            if (input && !input.value) {
+                input.value = GITHUB_TOKEN;
+            }
+        } else {
+            GITHUB_TOKEN = null;
+            if (statusText) {
+                statusText.textContent = 'Não configurado (salvamento apenas local)';
+                statusText.style.color = '#f59e0b';
+            }
+        }
+    }
+
+    updateTokenUI();
+
+    function openModal() {
+        updateTokenUI();
+        overlay.classList.remove('hidden');
+        overlay.style.display = 'flex';
+        if (errorMsg) {
+            errorMsg.classList.remove('visible');
+            errorMsg.textContent = '';
+        }
+        if (input) {
+            setTimeout(() => input.focus(), 200);
+        }
+    }
+
+    function closeModal() {
+        overlay.classList.add('hidden');
+        overlay.style.display = 'none';
+        if (errorMsg) {
+            errorMsg.classList.remove('visible');
+            errorMsg.textContent = '';
+        }
+    }
+
+    if (btnTokenConfig) {
+        btnTokenConfig.addEventListener('click', openModal);
+    }
+    if (btnClose) {
+        btnClose.addEventListener('click', closeModal);
+    }
+
+    if (toggleBtn && input) {
+        toggleBtn.addEventListener('click', () => {
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            toggleBtn.textContent = isPassword ? '🔒' : '👁️';
+        });
+    }
+
+    if (btnSave && input) {
+        btnSave.addEventListener('click', async () => {
+            const val = (input.value || '').trim();
+            if (!val) {
+                if (errorMsg) {
+                    errorMsg.textContent = '⚠️ Por favor, insira o token do GitHub antes de salvar.';
+                    errorMsg.classList.add('visible');
+                }
+                return;
+            }
+
+            btnSave.disabled = true;
+            btnSave.innerHTML = '<span>Testando conexão...</span>';
+            try {
+                const testRes = await fetch('https://api.github.com/user', {
+                    headers: {
+                        'Authorization': `token ${val}`,
+                        'Accept': 'application/vnd.github+json'
+                    }
+                });
+
+                if (testRes.ok) {
+                    const userData = await testRes.json();
+                    GITHUB_TOKEN = val;
+                    localStorage.setItem('github_token', GITHUB_TOKEN);
+                    updateTokenUI();
+                    alert(`✓ Conexão bem-sucedida com o GitHub!\nUsuário: ${userData.login || 'Autorizado'}\nAgora suas alterações serão sincronizadas com toda a equipe.`);
+                    closeModal();
+                } else {
+                    if (errorMsg) {
+                        errorMsg.textContent = '❌ Token inválido ou expirado. Verifique se o token possui o escopo "repo".';
+                        errorMsg.classList.add('visible');
+                    }
+                }
+            } catch (err) {
+                if (errorMsg) {
+                    errorMsg.textContent = '⚠️ Erro de conexão com a API do GitHub. Verifique sua rede.';
+                    errorMsg.classList.add('visible');
+                }
+            } finally {
+                btnSave.disabled = false;
+                btnSave.innerHTML = '<span>Salvar e Conectar</span>';
+            }
+        });
+    }
+
+    if (btnClear) {
+        btnClear.addEventListener('click', () => {
+            if (confirm('Deseja remover o token do GitHub salvo neste navegador?')) {
+                localStorage.removeItem('github_token');
+                GITHUB_TOKEN = null;
+                if (input) input.value = '';
+                updateTokenUI();
+                if (errorMsg) {
+                    errorMsg.classList.remove('visible');
+                    errorMsg.textContent = '';
+                }
+                alert('Token removido.');
+            }
+        });
+    }
+
+    window.openTokenModal = openModal;
 }

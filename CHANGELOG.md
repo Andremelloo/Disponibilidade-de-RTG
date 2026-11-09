@@ -5,6 +5,22 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [v1.0.5] - 2026-11-09
+### 🔐 Restauração do Controle de Acesso & Duplo Perfil
+- **Dois Perfis Oficiais de Acesso**:
+  - **Edição / Admin (senha `5550333`)**: Acesso irrestrito a simulações preditivas, ajuste de horas de manutenção, inclusão/remoção de RTGs, salvamento na nuvem e restauração de fábrica (reset).
+  - **Leitura / Viewer (senha `tcp@2025`)**: Acesso voltado para monitoramento e acompanhamento operacional dos indicadores da frota, com inputs e sliders desativados e botões de alteração ocultados.
+- **Persistência Inteligente de Sessão**: Suporte à opção "Manter conectado neste navegador" (armazena perfil e autenticação em `localStorage` ou `sessionStorage`).
+- **Botão Sair / Bloquear**: Permite alternar de perfil ou encerrar a sessão imediatamente retornando à tela de senha.
+
+### ☁️ Sincronização em Tempo Real Multi-Usuário (Nuvem / GitHub)
+- **Correção da Atualização entre Computadores**: Resolvido o problema em que alterações feitas em um computador não apareciam nos demais. Agora a aplicação faz polling em segundo plano a cada 20 segundos para verificar novas versões na nuvem (GitHub Contents API) e atualiza automaticamente telas e gráficos de todos os usuários conectados.
+- **Painel Integrado de Token GitHub ("Token Nuvem")**: Modal dedicado no cabeçalho para que editores configurem e testem a validade de seus tokens GitHub (`ghp_...`) com validação direta na API. Elimina alertas intrusivos no navegador e mantém o token salvo de forma segura no navegador local.
+- **Correção de Cabeçalhos e Rate Limit**: As consultas públicas de leitura da nuvem não exigem token e não são mais bloqueadas por tokens nulos ou expirados.
+- **Reset com Sincronização Instantânea**: O reset para o padrão de fábrica é enviado imediatamente para o repositório por editores com token configurado, garantindo que o `F5` ou a tela de outros usuários mantenham a frota resetada.
+
+---
+
 ## [v1.0.4] - 2026-11-06
 ### 🛡️ Persistência Pós-Reset & Resolução de Sobrescrita no F5
 - **Prevenção de Sobrescrita pelo GitHub**: Corrigido o fluxo de carregamento da nuvem em `loadFleetFromCloud`. Anteriormente, ao dar `F5`, a aplicação baixava os dados remotos antigos do arquivo `fleet_data.json` do GitHub e sobrescrevia cegamente o reset que o usuário acabara de aplicar.

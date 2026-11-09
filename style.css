@@ -1305,8 +1305,19 @@ body.mode-viewer .cell-input-small {
 }
 
 body.mode-viewer #btn-save-cloud,
+body.mode-viewer #btn-token-config,
 body.mode-viewer #btn-add-equip,
 body.mode-viewer #btn-reset,
 body.mode-viewer .btn-remove {
     display: none !important;
+}
+
+body.mode-viewer #input-current-day,
+body.mode-viewer #select-month-days,
+body.mode-viewer #input-target,
+body.mode-viewer #input-target-number,
+body.mode-viewer .btn-preset-meta {
+    pointer-events: none !important;
+    opacity: 0.65 !important;
+    cursor: not-allowed !important;
 }
