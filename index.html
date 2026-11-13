@@ -33,7 +33,7 @@
                     <div class="brand-title-row">
                         <h1 class="brand-title">Estratégia & Disponibilidade por Equipamento</h1>
                         <span class="badge-version" id="app-version-badge"
-                            title="Versão Oficial do Sistema">v1.0.5</span>
+                            title="Versão Oficial do Sistema">v1.0.6</span>
                     </div>
                     <p class="brand-subtitle">Simulador Preditivo Sequencial (D+1 a D+10) & Fechamento Mensal (Frota
                         Oficial de 41 RTGs)</p>
@@ -102,21 +102,68 @@
         </header>
 
         <!-- Modal de Autenticação / Bloqueio por Senha -->
+        <!-- Modal de Autenticação / Página Inicial de Acesso -->
         <div id="auth-modal-overlay" class="auth-overlay">
-            <div class="auth-modal-card">
-                <div class="auth-icon-badge">
-                    <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                    </svg>
+            <div class="auth-modal-card auth-page-card">
+                <div class="auth-header-tcp">
+                    <div class="auth-icon-badge">
+                        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                    </div>
+                    <span class="auth-tcp-tag">TERMINAL DE CONTÊINERES DE PARANAGUÁ (TCP)</span>
+                    <h2 class="auth-title">Portal de Confiabilidade & Gestão da Frota RTG</h2>
+                    <p class="auth-subtitle">Engenharia de Manutenção • Simulador Preditivo (D+1 a D+10) • Frota Oficial de 41 RTGs</p>
                 </div>
-                <h2 class="auth-title">Acesso Restrito</h2>
-                <p class="auth-subtitle">Engenharia de Confiabilidade & Gestão de Ativos (Frota RTG)</p>
 
+                <!-- Painel dos Dois Perfis Oficiais de Acesso -->
+                <div class="auth-profiles-grid">
+                    <!-- Perfil 1: Visualização / Acesso Geral -->
+                    <div class="auth-profile-card card-viewer" id="card-choice-viewer">
+                        <div class="profile-card-top">
+                            <span class="profile-icon">👁️</span>
+                            <div>
+                                <h4 class="profile-name">Perfil de Visualização</h4>
+                                <span class="profile-badge badge-viewer">Somente Leitura</span>
+                            </div>
+                        </div>
+                        <p class="profile-desc">Acompanhamento diário dos indicadores da frota, Disponibilidade Física (DF), MTBF, MTTR e curvas de projeção preditiva.</p>
+                        <div class="profile-pwd-box">
+                            <span class="pwd-label">Senha de Acesso:</span>
+                            <code class="pwd-code">tcp@2025</code>
+                        </div>
+                        <button type="button" class="btn-quick-access btn-quick-viewer" id="btn-quick-viewer">
+                            Acessar como Visualizador →
+                        </button>
+                    </div>
+
+                    <!-- Perfil 2: Edição / Planejamento -->
+                    <div class="auth-profile-card card-editor" id="card-choice-editor">
+                        <div class="profile-card-top">
+                            <span class="profile-icon">✏️</span>
+                            <div>
+                                <h4 class="profile-name">Perfil de Edição</h4>
+                                <span class="profile-badge badge-editor">Acesso Completo (Admin)</span>
+                            </div>
+                        </div>
+                        <p class="profile-desc">Ajuste de horas de paradas, simulações preditivas, inclusão de novos RTGs ZPMC, restauração de fábrica e gravação na nuvem.</p>
+                        <div class="profile-pwd-box">
+                            <span class="pwd-label">Senha de Edição:</span>
+                            <code class="pwd-code">5550333</code>
+                        </div>
+                        <button type="button" class="btn-quick-access btn-quick-editor" id="btn-quick-editor">
+                            Acessar como Editor →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Formulário Manual com Campo de Senha -->
                 <form id="auth-form" class="auth-form" onsubmit="return false;">
+                    <div class="auth-input-title">Ou digite uma das senhas acima para acessar:</div>
                     <div class="auth-input-wrapper">
                         <input type="password" id="auth-password-input" class="auth-input"
-                            placeholder="Digite sua senha de acesso..." autocomplete="current-password" required
+                            placeholder="Digite a senha de visualização (tcp@2025) ou de edição (5550333)..." autocomplete="current-password" required
                             autofocus>
                         <button type="button" id="btn-toggle-pwd" class="btn-pwd-eye" title="Mostrar/Ocultar Senha">
                             👁️
@@ -137,23 +184,10 @@
                             <polyline points="12 5 19 12 12 19"></polyline>
                         </svg>
                     </button>
-                    <div class="auth-roles-info">
-                        <div class="auth-role-item">
-                            <span class="role-dot editor"></span>
-                            <span><strong>Perfil Edição (Admin):</strong> Simulações preditivas, ajuste de horas, salvar
-                                na nuvem e reset</span>
-                        </div>
-                        <div class="auth-role-item">
-                            <span class="role-dot viewer"></span>
-                            <span><strong>Perfil Leitura:</strong> Visualização e acompanhamento de indicadores da
-                                frota</span>
-                        </div>
-                    </div>
                 </form>
             </div>
         </div>
 
-        
         <!-- Modal de Configuração do Token GitHub (Nuvem) -->
         <div id="token-modal-overlay" class="auth-overlay hidden" style="display: none;">
             <div class="auth-modal-card">

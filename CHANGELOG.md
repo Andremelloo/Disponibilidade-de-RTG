@@ -5,6 +5,17 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [v1.0.6] - 2026-11-13
+### 🚪 Nova Página Inicial de Acesso (Landing Portal & Seleção de Perfil)
+- **Portal de Acesso TCP**: Tela de entrada em destaque com a identidade do Terminal de Contêineres de Paranaguá (TCP) e Engenharia de Manutenção.
+- **Exibição dos Dois Perfis e Senhas Oficiais**:
+  - **Perfil de Visualização (Somente Leitura)**: Exibe a senha `tcp@2025` e botão de acesso direto. Permite consultar indicadores da frota, MTBF, MTTR e gráficos preditivos com inputs bloqueados.
+  - **Perfil de Edição (Planejamento & Admin)**: Exibe a senha `5550333` e botão de acesso direto. Concede permissão total para simulações, paradas, adição de novos RTGs e salvamento compartilhado.
+- **Botões de Acesso com 1 Clique**: O usuário pode clicar diretamente no card do perfil desejado ou digitar a senha manualmente no formulário.
+- **Sair e Trocar de Perfil**: O botão "Sair / Bloquear" na barra superior retorna instantaneamente à Página Inicial para alternar de perfil.
+
+---
+
 ## [v1.0.5] - 2026-11-09
 ### 🔐 Restauração do Controle de Acesso & Duplo Perfil
 - **Dois Perfis Oficiais de Acesso**:

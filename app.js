@@ -1367,6 +1367,42 @@ function initAuth() {
         });
     }
 
+        // Acesso Rápido pelos Cards da Página Inicial
+    const btnQuickViewer = document.getElementById('btn-quick-viewer');
+    const btnQuickEditor = document.getElementById('btn-quick-editor');
+    const cardChoiceViewer = document.getElementById('card-choice-viewer');
+    const cardChoiceEditor = document.getElementById('card-choice-editor');
+
+    if (btnQuickViewer) {
+        btnQuickViewer.addEventListener('click', (e) => {
+            e.stopPropagation();
+            input.value = PASSWORDS_VIEWER[0];
+            handleAuthSubmit();
+        });
+    }
+
+    if (btnQuickEditor) {
+        btnQuickEditor.addEventListener('click', (e) => {
+            e.stopPropagation();
+            input.value = PASSWORDS_EDITOR[0];
+            handleAuthSubmit();
+        });
+    }
+
+    if (cardChoiceViewer) {
+        cardChoiceViewer.addEventListener('click', () => {
+            input.value = PASSWORDS_VIEWER[0];
+            input.focus();
+        });
+    }
+
+    if (cardChoiceEditor) {
+        cardChoiceEditor.addEventListener('click', () => {
+            input.value = PASSWORDS_EDITOR[0];
+            input.focus();
+        });
+    }
+
     if (btnSubmit) {
         btnSubmit.addEventListener('click', (e) => {
             e.preventDefault();
