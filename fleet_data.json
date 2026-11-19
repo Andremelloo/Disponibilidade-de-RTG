@@ -1,7 +1,7 @@
 {
   "version": "2.0",
-  "updatedAt": "2026-11-19T19:20:51.049Z",
-  "timestamp": 1795116051049,
+  "updatedAt": "2026-11-19T19:21:01.051Z",
+  "timestamp": 1795116061051,
   "currentDay": 19,
   "monthDays": 30,
   "globalTarget": 0.875,
@@ -193,7 +193,7 @@
       "tag": "RTG-23",
       "family": "Kalmar",
       "customMonthHours": null,
-      "downtimeReal": 0,
+      "downtimeReal": 24.36,
       "downtimePlanned": 0,
       "failures": 0,
       "target": 0.875
@@ -203,7 +203,7 @@
       "tag": "RTG-24",
       "family": "Kalmar",
       "customMonthHours": null,
-      "downtimeReal": 95.9,
+      "downtimeReal": 0,
       "downtimePlanned": 0,
       "failures": 0,
       "target": 0.875
