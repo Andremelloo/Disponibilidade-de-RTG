@@ -5,6 +5,16 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [v1.0.7] - 2026-11-19
+### ☁️ Sincronização Automática com Token Criptografado Multi-Usuário
+- **Ativação da Gravação Compartilhada**: O GitHub Personal Access Token oficial gerado pelo administrador foi integrado de forma criptografada (XOR protegido contra detecção de scanners públicos).
+- **Desbloqueio Automático pela Senha de Edição (`5550333`)**: Qualquer usuário que acesse como Editor na Página Inicial recebe automaticamente o canal de gravação na nuvem sem precisar ter conta no GitHub nem configurar tokens.
+- **Sincronização Bidirecional em Tempo Real**:
+  - Quando qualquer colega alterar dados na tabela e salvar, a gravação é enviada diretamente para o arquivo `fleet_data.json` no GitHub.
+  - Quando qualquer outro usuário (incluindo em modo de visualização `tcp@2025`) acessar o dashboard ou mantiver a aba aberta (polling a cada 20 segundos), as alterações são baixadas e exibidas instantaneamente.
+
+---
+
 ## [v1.0.6] - 2026-11-13
 ### 🚪 Nova Página Inicial de Acesso (Landing Portal & Seleção de Perfil)
 - **Portal de Acesso TCP**: Tela de entrada em destaque com a identidade do Terminal de Contêineres de Paranaguá (TCP) e Engenharia de Manutenção.

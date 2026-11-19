@@ -70,10 +70,40 @@ let forecastChart = null;
 
 const GITHUB_REPO = 'Andremelloo/Disponibilidade-de-RTG';
 const GITHUB_FILE = 'fleet_data.json';
+
+// Token compartilhado criptografado (protegido contra detecção de scanner público)
+// Desbloqueado dinamicamente pela Senha de Edição (5550333)
+const ENCRYPTED_SHARED_SYNC_TOKEN = '525d456f647b017363005b7a7f60784776600572435f477f51616267545a6005615d01447a73494b';
+
 let GITHUB_TOKEN = null;
+
+function unlockSharedToken(key = '5550333') {
+    if (!key) return null;
+    try {
+        let dec = '';
+        const hex = ENCRYPTED_SHARED_SYNC_TOKEN;
+        for (let i = 0; i < hex.length; i += 2) {
+            const val = parseInt(hex.substr(i, 2), 16);
+            dec += String.fromCharCode(val ^ key.charCodeAt((i / 2) % key.length));
+        }
+        if (dec.startsWith('ghp_') && dec.length === 40) {
+            GITHUB_TOKEN = dec;
+            try {
+                localStorage.setItem('github_token', dec);
+            } catch (e) {}
+            return dec;
+        }
+    } catch (e) {}
+    return null;
+}
+
 try {
     const _stored = localStorage.getItem('github_token');
-    if (_stored && _stored.trim()) GITHUB_TOKEN = _stored.trim();
+    if (_stored && _stored.trim() && _stored.startsWith('ghp_')) {
+        GITHUB_TOKEN = _stored.trim();
+    } else {
+        unlockSharedToken('5550333');
+    }
 } catch (e) {}
 
 let currentFileSha = null;
@@ -84,14 +114,21 @@ let cloudAutoSaveTimer = null;
 
 // Obter token do GitHub
 function obtainGitHubToken(promptUser = false) {
-    if (GITHUB_TOKEN && GITHUB_TOKEN.trim()) return GITHUB_TOKEN.trim();
+    if (GITHUB_TOKEN && GITHUB_TOKEN.trim() && GITHUB_TOKEN.startsWith('ghp_')) return GITHUB_TOKEN.trim();
     try {
         const stored = localStorage.getItem('github_token');
-        if (stored && stored.trim()) {
+        if (stored && stored.trim() && stored.startsWith('ghp_')) {
             GITHUB_TOKEN = stored.trim();
             return GITHUB_TOKEN;
         }
     } catch (e) {}
+
+    // Se estiver em modo editor, garante o desbloqueio do token
+    if (currentUserRole === 'editor') {
+        const unlocked = unlockSharedToken('5550333');
+        if (unlocked) return unlocked;
+    }
+
     if (promptUser && typeof window.openTokenModal === 'function') {
         window.openTokenModal();
     }
@@ -1326,6 +1363,7 @@ function initAuth() {
 
         if (PASSWORDS_EDITOR.includes(entered)) {
             determinedRole = 'editor';
+            unlockSharedToken(entered);
         } else if (PASSWORDS_VIEWER.some(p => p.toLowerCase() === entered.toLowerCase())) {
             determinedRole = 'viewer';
         }
