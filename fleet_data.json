@@ -1,7 +1,7 @@
 {
   "version": "2.0",
-  "updatedAt": "2026-11-23T20:30:42.209Z",
-  "timestamp": 1795465842209,
+  "updatedAt": "2026-11-23T20:30:50.275Z",
+  "timestamp": 1795465850275,
   "currentDay": 23,
   "monthDays": 30,
   "globalTarget": 0.875,
@@ -273,7 +273,7 @@
       "tag": "RTG-32",
       "family": "ZPMC",
       "customMonthHours": null,
-      "downtimeReal": 16.7,
+      "downtimeReal": 27.41,
       "downtimePlanned": 0,
       "failures": 0,
       "target": 0.875
